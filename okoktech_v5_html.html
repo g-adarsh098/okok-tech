@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OKOK Tech — The Digital Kineticist</title>
+  <meta name="description"
+    content="OKOK Tech crafts pixel-perfect, high-performance digital products — websites, mobile apps, and UI/UX design for ambitious businesses." />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Chivo+Mono:wght@300;400;700&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Aurora Background -->
+  <div class="aurora-bg">
+    <div class="aurora-blob"></div>
+    <div class="aurora-blob"></div>
+    <div class="aurora-blob"></div>
+  </div>
+
+  <!-- Target Cursor -->
+  <div class="target-cursor-wrapper" id="targetCursor">
+    <div class="target-cursor-dot" id="targetDot"></div>
+    <div class="target-cursor-corner corner-tl"></div>
+    <div class="target-cursor-corner corner-tr"></div>
+    <div class="target-cursor-corner corner-br"></div>
+    <div class="target-cursor-corner corner-bl"></div>
+  </div>
+
+  <div id="pt-top"></div>
+  <div id="pt-bot"></div>
+  <div id="scroll-bar"></div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <nav>
+    <div class="nav-inner">
+      <a class="logo" onclick="showSection('home')" aria-label="OKOK Tech Home">
+        <span class="logo-text">OKOK<span>TECH</span></span>
+      </a>
+      <div class="nav-links">
+        <a onclick="showSection('home')" class="active" id="nav-home">Home</a>
+        <a onclick="showSection('products')" id="nav-products">Products</a>
+        <a onclick="showSection('projects')" id="nav-projects">Projects</a>
+        <a onclick="showSection('testimonials')" id="nav-testimonials">Testimonials</a>
+        <a onclick="showSection('about')" id="nav-about">About Us</a>
+        <a onclick="showSection('dashboard')" id="nav-dashboard" class="nav-auth-only"
+          style="display:none">Dashboard</a>
+        <a onclick="showSection('admin')" id="nav-admin" class="nav-admin-only" style="display:none">Admin</a>
+      </div>
+      <!-- Signed-out CTA -->
+      <div class="nav-cta" id="navCtaOut">
+        <button class="btn-ng" onclick="openAuth('signin')">Sign In</button>
+        <button class="btn-np" onclick="openAuth('signup')">Get Started</button>
+      </div>
+      <!-- Signed-in CTA -->
+      <div class="nav-cta" id="navCtaIn" style="display:none">
+        <div class="user-pill" id="userPill">
+          <div class="user-pill-avatar" id="userPillAvatar">U</div>
+          <span class="user-pill-name" id="userPillName">User</span>
+        </div>
+        <button class="btn-ng" onclick="handleSignOut()">Sign Out</button>
+      </div>
+      <button class="hamburger" onclick="toggleMob()" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mob-menu" id="mobMenu">
+    <a onclick="showSection('home'); closeMob();" id="mnav-home">Home</a>
+    <a onclick="showSection('products'); closeMob();" id="mnav-products">Products</a>
+    <a onclick="showSection('projects'); closeMob();" id="mnav-projects">Projects</a>
+    <a onclick="showSection('testimonials'); closeMob();" id="mnav-testimonials">Testimonials</a>
+    <a onclick="showSection('about'); closeMob();" id="mnav-about">About Us</a>
+    <a onclick="showSection('dashboard'); closeMob();" id="mnav-dashboard" class="nav-auth-only"
+      style="display:none">Dashboard</a>
+    <a onclick="showSection('admin'); closeMob();" id="mnav-admin" class="nav-admin-only" style="display:none">Admin</a>
+    <div class="mob-btns" id="mobBtnsOut">
+      <button class="btn-ng" onclick="openAuth('signin'); closeMob();">Sign In</button>
+      <button class="btn-np" onclick="openAuth('signup'); closeMob();">Get Started</button>
+    </div>
+    <div class="mob-btns" id="mobBtnsIn" style="display:none">
+      <button class="btn-ng" onclick="handleSignOut(); closeMob();">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ HOME ═══════════════════════ -->
+  <section class="page active" id="home">
+    <div class="hero-wrap">
+      <div>
+        <div class="hero-status">
+          <span class="dot"></span>
+          <span style="font-family: var(--font-m); font-size: 10px; letter-spacing: 0.15em;">REF_ID:
+            2025_KINETIC_LIVE</span>
+        </div>
+        <h1 class="hero-h1">We Build<br />Digital<br /><em>Experiences</em></h1>
+        <p class="hero-p">
+          From web platforms to mobile apps — OKOK Tech crafts pixel-perfect,
+          high-performance digital products for ambitious businesses.
+        </p>
+        <div class="hero-btns">
+          <button class="btn-hm" onclick="showSection('products')">Book a Service</button>
+          <button class="btn-hs" onclick="showSection('projects')">View Dossier</button>
+        </div>
+        <div class="hero-meta">
+          <div class="h-stat">
+            <div class="h-stat-n" id="stat-projects" data-count="30" data-suffix="+">0</div>
+            <div class="h-stat-l">Projects</div>
+          </div>
+          <div class="h-stat">
+            <div class="h-stat-n" id="stat-clients" data-count="20" data-suffix="+">0</div>
+            <div class="h-stat-l">Clients</div>
+          </div>
+          <div class="h-stat">
+            <div class="h-stat-n" id="stat-years" data-count="3" data-suffix="+">0</div>
+            <div class="h-stat-l">Years Exp.</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="hex-scene">
+          <svg class="hex-svg" viewBox="0 0 320 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="160" cy="175" rx="148" ry="148" stroke="rgba(74,222,128,0.07)" stroke-width="1"
+              stroke-dasharray="6 4" />
+            <ellipse cx="160" cy="175" rx="120" ry="120" stroke="rgba(34,211,238,0.06)" stroke-width="1"
+              stroke-dasharray="3 6" />
+            <clipPath id="tl">
+              <polygon points="160,18 90,58 90,175 160,175" />
+            </clipPath>
+            <polygon points="160,18 90,58 90,175 160,175 160,18" fill="#0d1f3a" />
+            <g clip-path="url(#tl)">
+              <text x="108" y="105" text-anchor="middle" font-family="Chivo Mono" font-size="11" font-weight="700"
+                fill="#4ade80" opacity="0.9">&lt;/&gt;</text>
+              <text x="108" y="120" text-anchor="middle" font-family="Chivo Mono" font-size="7" fill="#475569"
+                letter-spacing="1">FRONTEND</text>
+            </g>
+            <clipPath id="tr">
+              <polygon points="160,18 230,58 230,175 160,175" />
+            </clipPath>
+            <polygon points="160,18 230,58 230,175 160,175 160,18" fill="#0d2a1a" />
+            <g clip-path="url(#tr)">
+              <text x="208" y="100" text-anchor="middle" font-size="18" fill="#22d3ee" opacity="0.85">📱</text>
+              <text x="208" y="120" text-anchor="middle" font-family="Chivo Mono" font-size="7" fill="#475569"
+                letter-spacing="1">MOBILE</text>
+            </g>
+            <clipPath id="bl">
+              <polygon points="90,175 90,292 160,332 160,175" />
+            </clipPath>
+            <polygon points="90,175 90,292 160,332 160,175" fill="#1a2a10" />
+            <g clip-path="url(#bl)">
+              <text x="112" y="248" text-anchor="middle" font-size="18" fill="#4ade80" opacity="0.85">📦</text>
+              <text x="112" y="268" text-anchor="middle" font-family="Chivo Mono" font-size="7" fill="#475569"
+                letter-spacing="1">PRODUCT</text>
+            </g>
+            <clipPath id="br">
+              <polygon points="160,175 230,175 230,292 160,332" />
+            </clipPath>
+            <polygon points="160,175 230,175 230,292 160,332" fill="#271e0a" />
+            <g clip-path="url(#br)">
+              <text x="208" y="248" text-anchor="middle" font-size="18" fill="#D5AD36" opacity="0.9">🖥️</text>
+              <text x="208" y="268" text-anchor="middle" font-family="Chivo Mono" font-size="7" fill="#475569"
+                letter-spacing="1">UI/UX</text>
+            </g>
+            <polygon points="160,18 230,58 230,292 160,332 90,292 90,58" fill="none" stroke="rgba(74,222,128,0.25)"
+              stroke-width="1.5" />
+            <circle cx="160" cy="175" r="24" fill="#0f1117" stroke="rgba(74,222,128,0.4)" stroke-width="1.5" />
+            <circle cx="160" cy="175" r="5" fill="#4ade80" class="hex-pulse" />
+            <polygon points="160,28 222,64 222,286 160,322 98,286 98,64" fill="none" stroke="rgba(74,222,128,0.12)"
+              stroke-width="1" stroke-dasharray="8 5"
+              style="transform-origin: 160px 175px; animation: hexSpin 18s linear infinite;" />
+          </svg>
+          <div class="hex-fc fc-tl">
+            <div class="fc-d" style="background: var(--accent)"></div>
+            <div>
+              <div class="fc-n">Website Dev</div>
+              <div class="fc-p">from ₹15,000</div>
+            </div>
+          </div>
+          <div class="hex-fc fc-tr">
+            <div class="fc-d" style="background: var(--accent2)"></div>
+            <div>
+              <div class="fc-n">Mobile App</div>
+              <div class="fc-p">from ₹30,000</div>
+            </div>
+          </div>
+          <div class="hex-fc fc-br">
+            <div class="fc-d" style="background: var(--gold)"></div>
+            <div>
+              <div class="fc-n">UI/UX Design</div>
+              <div class="fc-p">from ₹8,000</div>
+            </div>
+          </div>
+        </div>
+        <div class="hex-stats-row">
+          <div class="hsp"><span class="hsp-n" data-count="30" data-suffix="+">0</span><span
+              class="hsp-l">Projects</span></div>
+          <div class="hsp"><span class="hsp-n" style="color: var(--gold)" data-count="99" data-suffix="%">0</span><span
+              class="hsp-l">Satisfaction</span></div>
+          <div class="hsp"><span class="hsp-n" style="color: var(--accent2)" data-count="24"
+              data-suffix="h">0</span><span class="hsp-l">Response</span></div>
+          <div class="hsp"><span class="hsp-n" style="color: var(--accent3)" data-count="3"
+              data-suffix="+">0</span><span class="hsp-l">Yrs Exp</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ PRODUCTS ═══════════════════════ -->
+  <section class="page" id="products">
+    <div class="container">
+      <div style="margin-bottom: 50px">
+        <div class="ref-tag">REF_ID: CONFIG_V3.0</div>
+        <h2 class="sec-title">What We Build<br />For You</h2>
+        <p class="sec-sub">Choose a service and book a discovery call. We'll get in touch within 24 hours.</p>
+      </div>
+      <div class="svc-grid sg">
+        <div class="svc-card svc-web">
+          <div class="svc-ref">SYS_ENG // WEB_SURFACE</div>
+          <div class="svc-ico ico-w">🌐</div>
+          <div class="svc-t">Website Development</div>
+          <div class="svc-d">Modern, responsive websites built with cutting-edge tech. From landing pages to full-scale
+            web applications that scale.</div>
+          <ul class="svc-ul">
+            <li>Responsive design across all devices</li>
+            <li>SEO optimized architecture</li>
+            <li>CMS integration (WordPress, Sanity)</li>
+            <li>Performance tuned &amp; fast loading</li>
+          </ul>
+          <div class="svc-price">Starting at <strong>₹15,000</strong></div>
+          <button class="btn-svc-more" onclick="toggleSvcDetails(this)">View Details ↓</button>
+          <div class="svc-details">
+            <div class="svc-detail-section">
+              <div class="svc-detail-label">TECH_STACK</div>
+              <div class="svc-tech-tags">
+                <span class="svc-tech-tag">React</span>
+                <span class="svc-tech-tag">Next.js</span>
+                <span class="svc-tech-tag">Node.js</span>
+                <span class="svc-tech-tag">Firebase</span>
+                <span class="svc-tech-tag">WordPress</span>
+                <span class="svc-tech-tag">Tailwind</span>
+              </div>
+            </div>
+            <div class="svc-detail-section">
+              <div class="svc-detail-label">EST_TIMELINE</div>
+              <div class="svc-detail-value">⏱️ 2 – 6 weeks depending on complexity</div>
+            </div>
+            <div class="svc-detail-section">
+              <div class="svc-detail-label">DELIVERABLES</div>
+              <ul class="svc-del-list">
+                <li>Fully responsive website</li>
+                <li>Source code &amp; documentation</li>
+                <li>Domain &amp; hosting setup assist</li>
+                <li>30-day post-launch support</li>
+                <li>SEO configuration &amp; analytics</li>
+              </ul>
+            </div>
+          </div>
+          <button class="btn-svc" onclick="openBooking('Website Development')">Initialize Build →</button>
+        </div>
+        <div class="svc-card svc-app">
+          <div class="svc-ref">APP_CORE // MOBILE</div>
+          <div class="svc-ico ico-a">📱</div>
+          <div class="svc-t">Mobile App Dev</div>
+          <div class="svc-d">Native &amp; cross-platform apps for iOS and Android. Built for performance, scale, and
+            delightful UX.</div>
+          <ul class="svc-ul">
+            <li>iOS &amp; Android (React Native / Flutter)</li>
+            <li>Push notifications &amp; real-time</li>
+            <li>API &amp; backend integration</li>
+            <li>App Store submission support</li>
+          </ul>
+          <div class="svc-price">Starting at <strong>₹30,000</strong></div>
+          <button class="btn-svc-more" onclick="toggleSvcDetails(this)">View Details ↓</button>
+          <div class="svc-details">
+            <div class="svc-detail-section">
+              <div class="svc-detail-label">TECH_STACK</div>
+              <div class="svc-tech-tags">
+                <span class="svc-tech-tag">React Native</span>
+                <span class="svc-tech-tag">Flutter</span>
+                <span class="svc-tech-tag">Firebase</span>
+                <span class="svc-tech-tag">Supabase</span>
+                <span class="svc-tech-tag">REST API</span>
+                <span class="svc-tech-tag">GraphQL</span>
+              </div>
+            </div>
+            <div class="svc-detail-section">
+              <div class="svc-detail-label">EST_TIMELINE</div>
+              <div class="svc-detail-value">⏱️ 4 – 10 weeks depending on features</div>
+            </div>
+            <div class="svc-detail-section">
+              <div class="svc-detail-label">DELIVERABLES</div>
+              <ul class="svc-del-list">
+                <li>Android &amp; iOS app builds</li>
+                <li>App Store / Play Store submission</li>
+                <li>Backend API &amp; database setup</li>
+                <li>Push notification integration</li>
+                <li>60-day post-launch support</li>
+              </ul>
+            </div>
+          </div>
+          <button class="btn-svc" onclick="openBooking('Mobile App Development')">Initialize Build →</button>
+        </div>
+        <div class="svc-card svc-ui">
+          <div class="svc-ref">UI_UX_FLOW</div>
+          <div class="svc-ico ico-u">🎨</div>
+          <div class="svc-t">UI/UX Design</div>
+          <div class="svc-d">Beautiful, intuitive interfaces that convert visitors into customers.</div>
+          <ul class="svc-ul">
+            <li>User research &amp; journey mapping</li>
+            <li>Wireframes &amp; interactive prototypes</li>
+            <li>Brand-aligned design systems</li>
+            <li>Usability testing &amp; iteration</li>
+          </ul>
+          <div class="svc-price">Starting at <strong>₹8,000</strong></div>
+          <button class="btn-svc-more" onclick="toggleSvcDetails(this)">View Details ↓</button>
+          <div class="svc-details">
+            <div class="svc-detail-section">
+              <div class="svc-detail-label">TOOLS_USED</div>
+              <div class="svc-tech-tags">
+                <span class="svc-tech-tag">Figma</span>
+                <span class="svc-tech-tag">Adobe XD</span>
+                <span class="svc-tech-tag">Framer</span>
+                <span class="svc-tech-tag">Photoshop</span>
+                <span class="svc-tech-tag">Illustrator</span>
+              </div>
+            </div>
+            <div class="svc-detail-section">
+              <div class="svc-detail-label">EST_TIMELINE</div>
+              <div class="svc-detail-value">⏱️ 1 – 3 weeks per design phase</div>
+            </div>
+            <div class="svc-detail-section">
+              <div class="svc-detail-label">DELIVERABLES</div>
+              <ul class="svc-del-list">
+                <li>High-fidelity mockups (all screens)</li>
+                <li>Interactive Figma prototype</li>
+                <li>Design system &amp; component library</li>
+                <li>Developer handoff specs</li>
+                <li>2 rounds of revisions included</li>
+              </ul>
+            </div>
+          </div>
+          <button class="btn-svc" onclick="openBooking('UI/UX Design')">Initialize Build →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ PROJECTS ═══════════════════════ -->
+  <section class="page" id="projects">
+    <div class="container">
+      <div style="margin-bottom: 40px">
+        <div class="ref-tag">Selected_Works_V2.0</div>
+        <h2 class="sec-title">PRO<span style="color: var(--accent3)">JECTS</span></h2>
+        <div class="proj-controls">
+          <div class="proj-search">
+            <span class="proj-search-icon">🔍</span>
+            <input type="text" id="projSearchInput" placeholder="Search projects..." oninput="searchProjects(this.value)" />
+          </div>
+          <div class="proj-filters">
+            <button class="fil on" onclick="fProj(this, 'all')">ALL_WORK</button>
+            <button class="fil" onclick="fProj(this, 'web')">WEB_ENV</button>
+            <button class="fil" onclick="fProj(this, 'app')">APP_CORE</button>
+            <button class="fil" onclick="fProj(this, 'ui')">UI_UX</button>
+          </div>
+        </div>
+      </div>
+      <div class="bento-p sg" id="projectsGrid">
+        <!-- Projects loaded dynamically from Firestore, fallback hardcoded below -->
+        <div class="pc big" data-cat="web">
+          <div class="pbg pg1"></div>
+          <div class="p-emoji">🛒</div>
+          <div class="pcon">
+            <div class="p-ref">REF_ID: OK-001</div>
+            <div class="p-name">ShopEase Platform</div>
+            <div class="p-desc">Full-stack e-commerce with inventory management, payment gateway, and admin dashboard.
+            </div>
+          </div>
+        </div>
+        <div class="pc tall" data-cat="app">
+          <div class="pbg pg2"></div>
+          <div class="p-emoji">🏋️</div>
+          <div class="pcon">
+            <div class="p-ref">REF_ID: OK-002</div>
+            <div class="p-name">FitTrack Mobile</div>
+            <div class="p-desc">Fitness tracking with workout plans, analytics, and social feed.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ TESTIMONIALS ═══════════════════════ -->
+  <section class="page" id="testimonials">
+    <div class="container">
+      <div style="margin-bottom: 50px">
+        <div class="ref-tag">VERIFIED_CLIENT_REVIEWS</div>
+        <h2 class="sec-title">What Clients<br />Actually Say</h2>
+      </div>
+      <div class="tb sg" id="testimonialsGrid">
+        <!-- Testimonials loaded dynamically from Firestore, fallback hardcoded below -->
+        <div class="tc feat">
+          <div class="tref">CLT-001 // 5★</div>
+          <span class="tqm">"</span>
+          <div class="tstars">⭐⭐⭐⭐⭐</div>
+          <p class="tt">OKOK Tech delivered our e-commerce platform 2 weeks ahead of schedule. The code quality and
+            attention to detail were exceptional.</p>
+          <div class="tau">
+            <div class="av av1">AK</div>
+            <div>
+              <div class="an">Arjun Kumar</div>
+              <div class="ar">CEO // ShopEase India</div>
+            </div>
+          </div>
+        </div>
+        <div class="tc">
+          <div class="tref">CLT-002 // 5★</div>
+          <span class="tqm">"</span>
+          <div class="tstars">⭐⭐⭐⭐⭐</div>
+          <p class="tt">Outstanding mobile app development. The UX is incredibly smooth, and our users love the
+            experience. Highly recommended!</p>
+          <div class="tau">
+            <div class="av av2">PS</div>
+            <div>
+              <div class="an">Priya Sharma</div>
+              <div class="ar">Founder // FitTrack</div>
+            </div>
+          </div>
+        </div>
+        <div class="tc">
+          <div class="tref">CLT-003 // 5★</div>
+          <span class="tqm">"</span>
+          <div class="tstars">⭐⭐⭐⭐⭐</div>
+          <p class="tt">The UI/UX redesign completely transformed our conversion rates. Professional, creative, and
+            incredibly responsive team.</p>
+          <div class="tau">
+            <div class="av av3">RV</div>
+            <div>
+              <div class="an">Rajesh Verma</div>
+              <div class="ar">CTO // TechNova Labs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ USER DASHBOARD ═══════════════════════ -->
+  <section class="page" id="dashboard">
+    <div class="container">
+      <div style="margin-bottom: 40px">
+        <div class="ref-tag">USER_DASHBOARD</div>
+        <h2 class="sec-title">Your <span style="color: var(--accent)">Dashboard</span></h2>
+      </div>
+      <div class="dash-grid">
+        <div class="dash-profile-card">
+          <div class="dash-avatar" id="dashAvatar">U</div>
+          <div class="dash-info">
+            <div class="dash-name" id="dashName">User Name</div>
+            <div class="dash-email" id="dashEmail">user@email.com</div>
+            <div class="dash-role" id="dashRole">Member</div>
+          </div>
+        </div>
+        <div class="dash-stats-card">
+          <div class="dash-stat-item">
+            <div class="dash-stat-icon">📋</div>
+            <div>
+              <div class="dash-stat-value" id="dashBookings">0</div>
+              <div class="dash-stat-label">Bookings</div>
+            </div>
+          </div>
+          <div class="dash-stat-item">
+            <div class="dash-stat-icon">📅</div>
+            <div>
+              <div class="dash-stat-value" id="dashJoined">—</div>
+              <div class="dash-stat-label">Joined</div>
+            </div>
+          </div>
+        </div>
+        <div class="dash-bookings-card">
+          <div class="dash-card-title">Your Bookings</div>
+          <div id="userBookingsList" class="dash-booking-list">
+            <div class="dash-empty">No bookings yet. <a onclick="showSection('products')"
+                style="color: var(--accent); cursor: pointer;">Browse services →</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ ADMIN PANEL ═══════════════════════ -->
+  <section class="page" id="admin">
+    <div class="container">
+      <div style="margin-bottom: 40px">
+        <div class="ref-tag">ADMIN_CONTROL_PANEL</div>
+        <h2 class="sec-title">Admin <span style="color: var(--gold)">Panel</span></h2>
+        <p class="sec-sub">Manage projects, testimonials, stats, and site content.</p>
+      </div>
+
+      <!-- Admin Tabs -->
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="switchAdminTab(this, 'tab-projects')">📂 Projects</button>
+        <button class="admin-tab" onclick="switchAdminTab(this, 'tab-testimonials')">💬 Testimonials</button>
+        <button class="admin-tab" onclick="switchAdminTab(this, 'tab-stats')">📊 Stats</button>
+        <button class="admin-tab" onclick="switchAdminTab(this, 'tab-bookings')">📋 Bookings</button>
+        <button class="admin-tab" onclick="switchAdminTab(this, 'tab-team')">👥 Team</button>
+        <button class="admin-tab" onclick="switchAdminTab(this, 'tab-users')">🔐 Users</button>
+      </div>
+
+      <!-- Tab: Projects -->
+      <div class="admin-tab-content active" id="tab-projects">
+        <div class="admin-section-grid">
+          <div class="admin-form-card">
+            <div class="admin-card-header">
+              <span class="admin-card-icon" id="apFormIcon">➕</span>
+              <span id="apFormTitle">Add New Project</span>
+            </div>
+            <input type="hidden" id="apEditId" value="" />
+            <div class="fr"><label>Project Name</label><input type="text" placeholder="e.g. ShopEase Platform"
+                id="apName" /></div>
+            <div class="fr"><label>Description</label><textarea placeholder="Brief project description..." id="apDesc"
+                rows="3"></textarea></div>
+            <div class="fr"><label>Project Image</label>
+              <div class="image-upload-zone" id="apUploadZone">
+                <div class="upload-preview" id="apPreview" style="display:none">
+                  <img id="apPreviewImg" src="" alt="Preview" />
+                  <button type="button" class="upload-remove" onclick="removeProjectImage()" title="Remove image">✕</button>
+                </div>
+                <div class="upload-droparea" id="apDropArea">
+                  <div class="upload-icon">📁</div>
+                  <div class="upload-text">Drag & drop an image here</div>
+                  <div class="upload-subtext">or choose an option below</div>
+                  <div class="upload-actions">
+                    <button type="button" class="btn-upload-device" onclick="document.getElementById('apFileInput').click()">
+                      <span class="upload-btn-icon">💻</span> From Device
+                    </button>
+                    <button type="button" class="btn-upload-drive" onclick="openGoogleDrivePicker()">
+                      <span class="upload-btn-icon">☁️</span> Google Drive
+                    </button>
+                  </div>
+                  <input type="file" id="apFileInput" accept="image/*" style="display:none" onchange="handleDeviceUpload(this)" />
+                </div>
+                <div class="upload-url-row">
+                  <span class="upload-or">— or paste URL —</span>
+                  <input type="text" placeholder="https://example.com/project-image.jpg" id="apImage" oninput="previewImageUrl(this.value)" />
+                </div>
+                <div class="upload-progress" id="apUploadProgress" style="display:none">
+                  <div class="upload-progress-bar" id="apProgressBar"></div>
+                  <span class="upload-progress-text" id="apProgressText">Uploading...</span>
+                </div>
+              </div>
+            </div>
+            <div class="fr"><label>Project URL</label><input type="text" placeholder="https://example.com" id="apUrl" /></div>
+            <div class="admin-row">
+              <div class="fr" style="flex:1"><label>Category</label>
+                <select id="apCat">
+                  <option value="web">Web</option>
+                  <option value="app">App</option>
+                  <option value="ui">UI/UX</option>
+                </select>
+              </div>
+              <div class="fr" style="flex:1"><label>Emoji</label><input type="text" placeholder="🛒" id="apEmoji" />
+              </div>
+              <div class="fr" style="flex:1"><label>Layout</label>
+                <select id="apLayout">
+                  <option value="big">Big (span 7)</option>
+                  <option value="tall">Tall (span 5)</option>
+                </select>
+              </div>
+            </div>
+            <div class="admin-row" style="gap:8px">
+              <button class="btn-admin-submit" id="apSubmitBtn" onclick="adminSaveProject()" style="flex:2">Add Project
+                →</button>
+              <button class="btn-admin-cancel" id="apCancelBtn" onclick="adminCancelEditProject()"
+                style="display:none;flex:1">Cancel</button>
+            </div>
+          </div>
+          <div class="admin-list-card">
+            <div class="admin-card-header">
+              <span class="admin-card-icon">📂</span>
+              <span>Existing Projects</span>
+            </div>
+            <div id="adminProjectsList" class="admin-items-list">
+              <div class="admin-empty">Loading projects...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Testimonials -->
+      <div class="admin-tab-content" id="tab-testimonials">
+        <div class="admin-section-grid">
+          <div class="admin-form-card">
+            <div class="admin-card-header">
+              <span class="admin-card-icon">➕</span>
+              <span>Add Testimonial</span>
+            </div>
+            <div class="fr"><label>Client Name</label><input type="text" placeholder="e.g. Arjun Kumar" id="atName" />
+            </div>
+            <div class="fr"><label>Role / Company</label><input type="text" placeholder="e.g. CEO // ShopEase"
+                id="atRole" /></div>
+            <div class="fr"><label>Testimonial Quote</label><textarea placeholder="What the client said..." id="atQuote"
+                rows="3"></textarea></div>
+            <div class="fr"><label>Rating (1-5)</label>
+              <select id="atRating">
+                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                <option value="4">⭐⭐⭐⭐ (4)</option>
+                <option value="3">⭐⭐⭐ (3)</option>
+                <option value="2">⭐⭐ (2)</option>
+                <option value="1">⭐ (1)</option>
+              </select>
+            </div>
+            <button class="btn-admin-submit" onclick="adminAddTestimonial()">Add Testimonial →</button>
+          </div>
+          <div class="admin-list-card">
+            <div class="admin-card-header">
+              <span class="admin-card-icon">💬</span>
+              <span>Existing Testimonials</span>
+            </div>
+            <div id="adminTestimonialsList" class="admin-items-list">
+              <div class="admin-empty">Loading testimonials...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Stats -->
+      <div class="admin-tab-content" id="tab-stats">
+        <div class="admin-form-card" style="max-width: 600px;">
+          <div class="admin-card-header">
+            <span class="admin-card-icon">📊</span>
+            <span>Update Site Statistics</span>
+          </div>
+          <p style="color: var(--text3); font-size: 13px; margin-bottom: 24px;">These values appear on the hero section
+            of the homepage.</p>
+          <div class="admin-row">
+            <div class="fr" style="flex:1"><label>Projects Count</label><input type="number" id="asProjects"
+                placeholder="30" /></div>
+            <div class="fr" style="flex:1"><label>Clients Count</label><input type="number" id="asClients"
+                placeholder="20" /></div>
+            <div class="fr" style="flex:1"><label>Years Experience</label><input type="number" id="asYears"
+                placeholder="3" /></div>
+          </div>
+          <div class="admin-row">
+            <div class="fr" style="flex:1"><label>Satisfaction %</label><input type="number" id="asSatisfaction"
+                placeholder="99" /></div>
+            <div class="fr" style="flex:1"><label>Response Time (h)</label><input type="number" id="asResponse"
+                placeholder="24" /></div>
+          </div>
+          <button class="btn-admin-submit" onclick="adminUpdateStats()">Save Stats →</button>
+        </div>
+      </div>
+
+      <!-- Tab: Bookings -->
+      <div class="admin-tab-content" id="tab-bookings">
+        <div class="admin-list-card" style="max-width: 900px;">
+          <div class="admin-card-header">
+            <div style="display:flex; align-items:center; gap:10px; flex:1">
+              <span class="admin-card-icon">📋</span>
+              <span>All Bookings</span>
+            </div>
+            <a href="https://docs.google.com/spreadsheets/d/13YTIpH0g11Z250PODqAbIDBf_YkNb-IkztHCfrS076o/edit?usp=sharing" target="_blank" style="font-size: 13px; color: var(--accent); text-decoration: none;">📊 View Google Sheet</a>
+            <a onclick="syncToGoogleSheets()" style="font-size: 13px; color: var(--accent2); text-decoration: underline; margin-left: 15px; cursor: pointer;">🔄 Sync Firestore to Sheet</a>
+          </div>
+          <div id="adminBookingsList" class="admin-items-list">
+            <div class="admin-empty">Loading bookings...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Team -->
+      <div class="admin-tab-content" id="tab-team">
+        <div class="admin-section-grid">
+          <div class="admin-form-card">
+            <div class="admin-card-header">
+              <span class="admin-card-icon">➕</span>
+              <span>Add Team Member</span>
+            </div>
+            <div class="fr"><label>Name</label><input type="text" placeholder="e.g. John Doe" id="admTeamName" /></div>
+            <div class="fr"><label>Role / Title</label><input type="text" placeholder="e.g. Lead Developer" id="admTeamRole" /></div>
+            <div class="fr"><label>Description</label><textarea placeholder="Brief bio..." id="admTeamDesc" rows="3"></textarea></div>
+            <div class="fr"><label>Team Member Image</label>
+              <div class="image-upload-zone" id="teamUploadZone">
+                <div class="upload-preview" id="teamPreview" style="display:none">
+                  <img id="teamPreviewImg" src="" alt="Preview" />
+                  <button type="button" class="upload-remove" onclick="removeTeamImage()" title="Remove image">✕</button>
+                </div>
+                <div class="upload-droparea" id="teamDropArea">
+                  <div class="upload-icon">📁</div>
+                  <div class="upload-text">Drag & drop an image</div>
+                  <div class="upload-subtext">or choose an option below</div>
+                  <div class="upload-actions">
+                    <button type="button" class="btn-upload-device" onclick="document.getElementById('teamFileInput').click()">
+                      <span class="upload-btn-icon">💻</span> From Device
+                    </button>
+                    <button type="button" class="btn-upload-drive" onclick="openGoogleDrivePicker('team')">
+                      <span class="upload-btn-icon">☁️</span> Google Drive
+                    </button>
+                  </div>
+                  <input type="file" id="teamFileInput" accept="image/*" style="display:none" onchange="handleTeamUpload(this)" />
+                </div>
+                <div class="upload-url-row">
+                  <span class="upload-or">— or paste URL —</span>
+                  <input type="text" placeholder="https://..." id="admTeamImg" oninput="previewTeamImageUrl(this.value)" />
+                </div>
+                <div class="upload-progress" id="teamUploadProgress" style="display:none">
+                  <div class="upload-progress-bar" id="teamProgressBar"></div>
+                  <span class="upload-progress-text" id="teamProgressText">Uploading...</span>
+                </div>
+              </div>
+            </div>
+            <div class="fr"><label>LinkedIn URL</label><input type="text" placeholder="https://linkedin.com/in/..." id="admTeamLi" /></div>
+            <div class="fr"><label>GitHub or Twitter URL</label><input type="text" placeholder="https://github.com/..." id="admTeamGh" /></div>
+            <button class="btn-admin-submit" onclick="adminAddTeamMember()">Add Member →</button>
+          </div>
+          <div class="admin-list-card">
+            <div class="admin-card-header">
+              <span class="admin-card-icon">👥</span>
+              <span>Team Roster</span>
+            </div>
+            <div id="adminTeamList" class="admin-items-list">
+              <div class="admin-empty">Loading team...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Users (Role Management) -->
+      <div class="admin-tab-content" id="tab-users">
+        <div class="admin-list-card" style="max-width: 900px;">
+          <div class="admin-card-header">
+            <span class="admin-card-icon">🔐</span>
+            <span>User Role Management</span>
+          </div>
+          <p style="color: var(--text3); font-size: 13px; margin-bottom: 16px; line-height: 1.6;">Manage user roles across the platform. Toggle any user between <strong style="color: var(--accent)">Admin</strong> and <strong style="color: var(--text2)">User</strong> roles. Admins get full access to this panel.</p>
+          <div class="user-search-row">
+            <input type="text" id="userSearchInput" placeholder="Search by name or email..." oninput="filterAdminUsers(this.value)" />
+          </div>
+          <div id="adminUsersList" class="admin-items-list">
+            <div class="admin-empty">Loading users...</div>
+          </div>
+        </div>
+      </div>
+
+<!-- Removed Sheets Tab -->
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ ABOUT ═══════════════════════ -->
+  <section class="page" id="about">
+    <div class="container">
+      <div class="ab-grid">
+        <div class="ab-main">
+          <div class="ref-tag">ABOUT_OKOK_TECH</div>
+          <h2 class="ab-h2">Building tech that<br /><span style="color: var(--accent)">actually works.</span></h2>
+          <p class="ab-p">OKOK Tech is a freelance digital studio based in India, specializing in building websites,
+            mobile apps, and user experiences that make a real business impact.</p>
+          <div class="vals sg">
+            <div class="val">
+              <div class="vi">⚡</div>
+              <div class="vt">Fast Delivery</div>
+              <div class="vd">DEADLINES_RESPECTED</div>
+            </div>
+            <div class="val">
+              <div class="vi">🔒</div>
+              <div class="vt">Clean Code</div>
+              <div class="vd">SCALABLE_ARCH</div>
+            </div>
+          </div>
+        </div>
+        <div class="ab-right">
+          <div class="cg">
+            <div class="ct">Get In Touch</div>
+            <div class="cs">Let's talk about your next project.</div>
+            <div class="cr">
+              <div class="cico em">📧</div>
+              <div>
+                <div class="cl">Email</div>
+                <div class="cv">hello@okoktech.in</div>
+              </div>
+            </div>
+            <hr class="asep" />
+            <div class="al">Join OKOK Tech</div>
+            <div class="arow">
+              <button class="btn-ai" onclick="openAuth('signin')">Sign In</button>
+              <button class="btn-au" onclick="openAuth('signup')">Sign Up</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+      
+      <!-- TEAM DIRECTORY -->
+      <div style="margin-top: 80px; margin-bottom: 40px; text-align: center;">
+        <div class="ref-tag" style="justify-content: center;">SYS_ARCHITECTS</div>
+        <h2 class="sec-title" style="font-size: 32px">The <span style="color: var(--accent2)">Minds</span> Behind OKOK</h2>
+      </div>
+      <div class="team-grid sg" id="teamGrid">
+        <div class="admin-empty" style="grid-column: 1/-1">Loading team data...</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="fi">
+      <div>
+        <div class="flogo">OKOK<span>TECH</span></div>
+        <div class="ftag">Tactile technical excellence<br />in digital craftsmanship.</div>
+      </div>
+    </div>
+    <div class="fb">
+      <span class="fcp">© 2026 OKOK Tech. Built for The Digital Kineticist.</span>
+    </div>
+  </footer>
+
+  <!-- Booking Modal -->
+  <div class="mo" id="bModal">
+    <div class="mb">
+      <div id="bForm">
+        <div class="mref">INIT_PROJECT_BOOKING</div>
+        <div class="mtit">Book a Service</div>
+        <div class="fr"><label>Service</label><input type="text" id="bSvc" readonly /></div>
+        <div class="fr"><label>Your Name</label><input type="text" placeholder="e.g. Rahul Kumar" id="bN" /></div>
+        <div class="fr"><label>Email Address</label><input type="email" placeholder="your@email.com" id="bE" /></div>
+        <div class="fr"><label>Phone Number</label><input type="tel" placeholder="+91 98765 43210" id="bPhone" /></div>
+        <div class="fr"><label>Message (optional)</label><textarea placeholder="Tell us about your project..." id="bMsg"
+            rows="3"></textarea></div>
+        <div class="macts">
+          <button class="btn-mc" onclick="closeBook()">Cancel</button>
+          <button class="btn-ms" onclick="submitBook()">Initialize Project ✓</button>
+        </div>
+      </div>
+      <div class="sblk" id="bOk">
+        <div class="sico">✅</div>
+        <div class="stit">Booking Received!</div>
+        <p style="color: var(--text2); margin-top: 8px; font-size: 14px;">We'll get back to you within 24 hours.</p>
+        <br /><button class="btn-ms" style="width: 100%" onclick="closeBook()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div class="mo" id="aModal">
+    <div class="ab2">
+      <div class="mref">AUTH_MODULE</div>
+      <div class="mtit" id="aT">Welcome back</div>
+      <div id="authError" class="auth-error" style="display:none"></div>
+      <div class="fr" id="aNW" style="display: none"><label>Full Name</label><input type="text"
+          placeholder="Your full name" id="aN" /></div>
+      <div class="fr"><label>Email Address</label><input type="email" placeholder="your@email.com" id="aE" /></div>
+      <div class="fr"><label>Password</label><input type="password" placeholder="••••••••" id="aP" /></div>
+      <div class="macts" style="margin-top: 20px">
+        <button class="btn-mc" onclick="closeAuth()">Cancel</button>
+        <button class="btn-ms" id="aSB" onclick="subAuth()">Sign In</button>
+      </div>
+      <div class="auth-divider"><span>or</span></div>
+      <button class="btn-google" onclick="subAuthGoogle()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" class="google-logo" />
+        Continue with Google
+      </button>
+      <p class="atp" id="aTP">Don't have an account? <a onclick="togAuth()">Sign up free</a></p>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <!-- Google API for Drive Picker -->
+  <script src="https://apis.google.com/js/api.js"></script>
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>
