@@ -504,19 +504,26 @@ function subAuth() {
   btn.disabled = true;
 
   if (aMode === "signup") {
+    let newCred = null;
     auth.createUserWithEmailAndPassword(email, pass)
       .then((cred) => {
-        // Create user document in Firestore
-        return db.collection("users").doc(cred.user.uid).set({
-          name: name,
-          email: email,
-          role: "user",  // Default role — change to "admin" manually in Firestore
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        newCred = cred;
+        // Save the name in the Firebase Auth profile instead of Firestore for now
+        return newCred.user.updateProfile({
+          displayName: name
         });
       })
       .then(() => {
+        // Send email verification link
+        return newCred.user.sendEmailVerification();
+      })
+      .then(() => {
+        // Immediately sign out to force verification
+        return auth.signOut();
+      })
+      .then(() => {
         closeAuth();
-        showToast("Account created successfully! Welcome to OKOK Tech.");
+        showToast("Account created! Please check your inbox to verify your email.", "success");
       })
       .catch((err) => {
         showAuthError(getAuthErrorMessage(err.code));
@@ -525,9 +532,31 @@ function subAuth() {
       });
   } else {
     auth.signInWithEmailAndPassword(email, pass)
-      .then(() => {
-        closeAuth();
-        showToast("Signed in successfully!");
+      .then((cred) => {
+        // Enforce email verification for 'email/password' sign-ins
+        if (!cred.user.emailVerified) {
+          // Send a fresh verification email because the old one might have expired
+          cred.user.sendEmailVerification().catch(() => {});
+          auth.signOut();
+          showAuthError("Account not verified! A fresh verification link was just sent to your inbox.");
+          btn.textContent = "Sign In";
+          btn.disabled = false;
+        } else {
+          // Only create the user data document in Firestore AFTER they successfully verify and login
+          return db.collection("users").doc(cred.user.uid).get().then((doc) => {
+            if (!doc.exists) {
+              return db.collection("users").doc(cred.user.uid).set({
+                name: cred.user.displayName || "User",
+                email: cred.user.email,
+                role: "user",
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+              });
+            }
+          }).then(() => {
+            closeAuth();
+            showToast("Signed in successfully!");
+          });
+        }
       })
       .catch((err) => {
         showAuthError(getAuthErrorMessage(err.code));
@@ -590,25 +619,44 @@ function handleSignOut() {
 
 // ── AUTH STATE OBSERVER ──
 auth.onAuthStateChanged((user) => {
-  currentUser = user;
-
   if (user) {
-    // Fetch user role from Firestore
-    db.collection("users").doc(user.uid).get().then((doc) => {
-      if (doc.exists) {
-        currentUserData = doc.data();
-        currentUserRole = (currentUserData.role || "user").trim();
-      } else {
-        currentUserRole = "user";
-        currentUserData = { email: user.email, name: user.displayName || "User" };
+    // Forcefully check if the user account is still valid/active in Firebase
+    user.reload().then(() => {
+      currentUser = auth.currentUser; // get latest references
+      
+      // Prevent unverified email/password users from appearing logged in
+      const isPasswordUser = currentUser.providerData && currentUser.providerData.some(p => p.providerId === 'password');
+      if (isPasswordUser && !currentUser.emailVerified) {
+        auth.signOut();
+        return; // stop the state check entirely
       }
-      updateAuthUI(true);
-    }).catch(() => {
-      currentUserRole = "user";
-      currentUserData = { email: user.email, name: "User" };
-      updateAuthUI(true);
+      
+      // Fetch user role from Firestore
+      db.collection("users").doc(user.uid).get().then((doc) => {
+        if (doc.exists) {
+          currentUserData = doc.data();
+          currentUserRole = (currentUserData.role || "user").trim();
+        } else {
+          currentUserRole = "user";
+          currentUserData = { email: user.email, name: user.displayName || "User" };
+        }
+        updateAuthUI(true);
+      }).catch(() => {
+        currentUserRole = "user";
+        currentUserData = { email: user.email, name: "User" };
+        updateAuthUI(true);
+      });
+    }).catch((error) => {
+      // If user was deleted from Firebase Console, this throws an error.
+      // We log them out so their local session doesn't linger.
+      auth.signOut();
+      currentUser = null;
+      currentUserRole = null;
+      currentUserData = null;
+      updateAuthUI(false);
     });
   } else {
+    currentUser = null;
     currentUserRole = null;
     currentUserData = null;
     updateAuthUI(false);
