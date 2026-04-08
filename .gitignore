@@ -1,17 +1,3 @@
-const firebaseConfig = {
-    apiKey: "AIzaSyBcBbAje9jQbZfSxY3TGvYBe1bhw_E3AI4",
-    authDomain: "okoktech-2215.firebaseapp.com",
-    projectId: "okoktech-2215",
-    storageBucket: "okoktech-2215.firebasestorage.app",
-    messagingSenderId: "840478167020",
-    appId: "1:840478167020:web:58846176955e0881786804",
-    measurementId: "G-198796662"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-
-// Export references
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
+node_modules/
+.env
+.DS_Store

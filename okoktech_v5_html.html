@@ -526,7 +526,10 @@
                 id="apName" /></div>
             <div class="fr"><label>Description</label><textarea placeholder="Brief project description..." id="apDesc"
                 rows="3"></textarea></div>
-            <div class="fr"><label>Project Image</label>
+            <div class="fr"><label>Client Name</label><input type="text" placeholder="e.g. ShopEase India" id="apClient" /></div>
+            <div class="fr"><label>Timeline</label><input type="text" placeholder="e.g. 4 Weeks" id="apTimeline" /></div>
+            <div class="fr"><label>Tech Stack</label><input type="text" placeholder="React, Node.js, Firebase..." id="apTechStack" /></div>
+            <div class="fr"><label>Project Images (Gallery)</label>
               <div class="image-upload-zone" id="apUploadZone">
                 <div class="upload-preview" id="apPreview" style="display:none">
                   <img id="apPreviewImg" src="" alt="Preview" />
@@ -555,6 +558,7 @@
                   <span class="upload-progress-text" id="apProgressText">Uploading...</span>
                 </div>
               </div>
+              <div id="apGalleryPreview" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;"></div>
             </div>
             <div class="fr"><label>Project URL</label><input type="text" placeholder="https://example.com" id="apUrl" /></div>
             <div class="admin-row">
@@ -865,6 +869,115 @@
         Continue with Google
       </button>
       <p class="atp" id="aTP">Don't have an account? <a onclick="togAuth()">Sign up free</a></p>
+    </div>
+  </div>
+
+  <!-- Admin Accept Booking Modal -->
+  <div class="mo" id="adminAcceptModal">
+    <div class="mb">
+      <div id="adminAcceptForm">
+        <div class="mref">ADMIN_ACTION // ACCEPT</div>
+        <div class="mtit">Schedule Meeting</div>
+        <p style="color: var(--text3); font-size: 13px; margin-bottom: 20px;">Send a meeting link to the client and move the booking to the `meeting_scheduled` stage.</p>
+        <input type="hidden" id="acceptBookingId" />
+        <div class="fr"><label>Google Meet / Zoom Link</label><input type="url" placeholder="https://meet.google.com/xyz-abcd-efg" id="acceptMeetLink" /></div>
+        <div class="fr"><label>Meeting Date & Time</label><input type="datetime-local" id="acceptMeetDate" /></div>
+        <div class="macts" style="margin-top: 24px;">
+          <button class="btn-mc" onclick="closeAdminAccept()">Cancel</button>
+          <button class="btn-ms" onclick="submitAdminAccept()">Send & Accept ✓</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Initialize Project Modal -->
+  <div class="mo" id="adminInitProjectModal">
+    <div class="mb" style="max-width: 500px;">
+      <div id="adminInitProjectForm">
+        <div class="mref">ADMIN_ACTION // INITIALIZE</div>
+        <div class="mtit">Setup 7-Stage Tracker</div>
+        <p style="color: var(--text3); font-size: 13px; margin-bottom: 20px;">Move this booking into `in_progress` and set up the Flipkart delivery-style tracking for the client's dashboard.</p>
+        <input type="hidden" id="initProjectId" />
+        
+        <div class="fr" style="margin-bottom: 12px;"><label>Demo Submission Date</label><input type="date" id="initDemoDate" /></div>
+        <div class="fr" style="margin-bottom: 20px;"><label>Final Submission Date</label><input type="date" id="initFinalDate" /></div>
+        
+        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;">Define The 7 Stages</label>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;">
+          <input type="text" id="initStage1" value="Requirement Gathering" class="stage-input" />
+          <input type="text" id="initStage2" value="Design & Prototyping" class="stage-input" />
+          <input type="text" id="initStage3" value="Frontend Development" class="stage-input" />
+          <input type="text" id="initStage4" value="Backend Integration" class="stage-input" />
+          <input type="text" id="initStage5" value="QA & Testing" class="stage-input" />
+          <input type="text" id="initStage6" value="Demo & Feedback" class="stage-input" />
+          <input type="text" id="initStage7" value="Final Deployment" class="stage-input" />
+        </div>
+
+        <div class="macts">
+          <button class="btn-mc" onclick="closeAdminInitProject()">Cancel</button>
+          <button class="btn-ms" onclick="submitAdminInitProject()">Initialize Project 🚀</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Public Project Dossier Modal -->
+  <div class="mo" id="projectDossierModal">
+    <div class="mb" style="max-width: 800px; padding: 0;">
+      <div style="position: relative; width: 100%; height: 350px; background: #000;">
+        <img id="dossierCover" src="" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.6;" />
+        <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 40px 30px; background: linear-gradient(to top, rgba(6,8,13,1), transparent);">
+          <div class="mref" id="dossierRef">PROJECT_DEF // 000</div>
+          <div class="mtit" id="dossierTitle" style="font-size: 40px; margin-bottom: 8px;">Project Title</div>
+          <div style="color: var(--accent); font-family: var(--font-m); letter-spacing: 0.1em; font-size: 13px;" id="dossierMeta">CATEGORY &bull; TIMELINE</div>
+        </div>
+        <button onclick="closeProjectDossier()" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; backdrop-filter: blur(4px);">✕</button>
+      </div>
+      <div style="padding: 30px;">
+        <p id="dossierDesc" style="color: var(--text2); font-size: 15px; line-height: 1.8; margin-bottom: 30px;"></p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+          <div>
+            <div style="font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Client</div>
+            <div id="dossierClient" style="font-size: 15px; font-weight: 600;">—</div>
+          </div>
+          <div>
+            <div style="font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Tech Stack</div>
+            <div id="dossierTech" style="font-size: 14px; color: var(--accent2);">—</div>
+          </div>
+        </div>
+
+        <div id="dossierGallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 30px;">
+          <!-- Gallery images injected here -->
+        </div>
+
+        <div style="text-align: right;">
+          <a id="dossierLink" href="#" target="_blank" class="btn-np" style="text-decoration: none; display: inline-block;">Visit Live Project ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Service Details Modal -->
+  <div class="mo" id="svcDetailsModal">
+    <div class="mb" style="max-width: 650px; padding: 0;">
+      <div style="padding: 40px 30px; background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(129, 140, 248, 0.05)); border-bottom: 1px solid rgba(255,255,255,0.05); position: relative;">
+        <button onclick="closeSvcDetails()" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; backdrop-filter: blur(4px);">✕</button>
+        <div class="mref" id="svcModalRef">SVC_DEF // 000</div>
+        <div style="display: flex; align-items: center; gap: 16px; margin-top: 10px;">
+          <div id="svcModalIcon" style="font-size: 40px; background: rgba(255,255,255,0.05); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">🌐</div>
+          <div>
+            <div class="mtit" id="svcModalTitle" style="font-size: 32px; margin-bottom: 4px;">Service Title</div>
+            <div id="svcModalPrice" style="color: var(--gold); font-size: 15px; font-weight: 600;">Starting at ₹...</div>
+          </div>
+        </div>
+      </div>
+      <div style="padding: 30px;">
+        <p id="svcModalDesc" style="color: var(--text2); font-size: 16px; line-height: 1.8; margin-bottom: 30px;"></p>
+        <div id="svcModalContent">
+          <!-- Injected from the hidden HTML .svc-details -->
+        </div>
+      </div>
     </div>
   </div>
 

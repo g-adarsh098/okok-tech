@@ -758,21 +758,23 @@ function loadProjects() {
     ];
 
     let idx = 0;
+    window.publicProjectCache = {};
     snap.forEach((doc) => {
       const d = doc.data();
       const layout = d.layout || "big";
       const gradient = gradients[idx % gradients.length];
       idx++;
 
+      window.publicProjectCache[doc.id] = { id: doc.id, ...d };
+
       const card = document.createElement("div");
       card.className = `pc ${layout}`;
       card.dataset.cat = d.category || "web";
       card.dataset.name = d.name || '';
       card.dataset.desc = d.description || '';
-      if (d.url) {
-        card.style.cursor = 'pointer';
-        card.onclick = () => window.open(d.url, '_blank');
-      }
+      card.style.cursor = 'pointer';
+      card.onclick = () => openProjectDossier(doc.id);
+      
       const bgStyle = d.image
         ? `background-image: url('${d.image}'); background-size: cover; background-position: center;`
         : `background: ${gradient}`;
@@ -783,7 +785,7 @@ function loadProjects() {
           <div class="p-ref">REF_ID: ${doc.id.slice(0, 8).toUpperCase()}</div>
           <div class="p-name">${escHtml(d.name)}</div>
           <div class="p-desc">${escHtml(d.description)}</div>
-          ${d.url ? '<div class="p-link">🔗 View Project</div>' : ''}
+          <div class="p-link">📄 View Dossier</div>
         </div>
       `;
       grid.appendChild(card);
@@ -791,6 +793,54 @@ function loadProjects() {
   }).catch(() => {
     // Keep hardcoded fallback on error
   });
+}
+
+function openProjectDossier(id) {
+  const d = window.publicProjectCache ? window.publicProjectCache[id] : null;
+  if (!d) return;
+
+  document.getElementById("dossierRef").textContent = "PROJ_DEF // " + id.slice(0, 8).toUpperCase();
+  document.getElementById("dossierTitle").textContent = d.name || "Untitled";
+  document.getElementById("dossierMeta").innerHTML = `${(d.category || 'web').toUpperCase()} &bull; ${escHtml(d.timeline || 'TBD')}`;
+  document.getElementById("dossierDesc").textContent = d.description || "";
+  document.getElementById("dossierClient").textContent = d.clientName || "—";
+  document.getElementById("dossierTech").textContent = d.techStack || "—";
+  
+  if (d.image) {
+    document.getElementById("dossierCover").src = d.image;
+    document.getElementById("dossierCover").style.display = "block";
+  } else {
+    document.getElementById("dossierCover").style.display = "none";
+  }
+
+  const linkBtn = document.getElementById("dossierLink");
+  if (d.url) {
+    linkBtn.href = d.url;
+    linkBtn.style.display = "inline-block";
+  } else {
+    linkBtn.style.display = "none";
+  }
+
+  const galContainer = document.getElementById("dossierGallery");
+  galContainer.innerHTML = "";
+  const images = d.gallery && d.gallery.length > 0 ? d.gallery : (d.image ? [d.image] : []);
+  images.forEach(img => {
+    const div = document.createElement("div");
+    div.style.borderRadius = "8px";
+    div.style.overflow = "hidden";
+    div.style.aspectRatio = "1";
+    div.style.border = "1px solid rgba(255,255,255,0.1)";
+    div.innerHTML = `<img src="${escHtml(img)}" style="width:100%; height:100%; object-fit:cover;" />`;
+    galContainer.appendChild(div);
+  });
+
+  document.getElementById("projectDossierModal").classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+
+function closeProjectDossier() {
+  document.getElementById("projectDossierModal").classList.remove("show");
+  document.body.style.overflow = "";
 }
 
 // ── LOAD TESTIMONIALS ──
@@ -968,7 +1018,8 @@ function loadAdminData() {
   renderAdminUsers();
 }
 
-// ── ADMIN: PROJECTS ──
+let currentProjectGallery = [];
+
 function adminSaveProject() {
   const editId = document.getElementById("apEditId").value;
   const name = document.getElementById("apName").value.trim();
@@ -976,8 +1027,21 @@ function adminSaveProject() {
   const cat = document.getElementById("apCat").value;
   const emoji = document.getElementById("apEmoji").value.trim() || "📦";
   const layout = document.getElementById("apLayout").value;
-  const image = document.getElementById("apImage").value.trim();
   const url = document.getElementById("apUrl").value.trim();
+  
+  const client = document.getElementById("apClient")?.value.trim() || "";
+  const timeline = document.getElementById("apTimeline")?.value.trim() || "";
+  const techStack = document.getElementById("apTechStack")?.value.trim() || "";
+  
+  // Backwards compatibility for single image vs gallery
+  let coverImage = "";
+  if (currentProjectGallery.length > 0) {
+    coverImage = currentProjectGallery[0];
+  } else {
+    // If they typed something but didn't "add" to gallery
+    coverImage = document.getElementById("apImage").value.trim();
+    if (coverImage) currentProjectGallery.push(coverImage);
+  }
 
   if (!name || !desc) {
     showToast("Project name and description are required.", "error");
@@ -985,7 +1049,9 @@ function adminSaveProject() {
   }
 
   const projectData = {
-    name, description: desc, category: cat, emoji, layout, image, url,
+    name, description: desc, category: cat, emoji, layout, image: coverImage, url,
+    clientName: client, timeline: timeline, techStack: techStack,
+    gallery: currentProjectGallery,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
 
@@ -1027,13 +1093,13 @@ function adminEditProject(id) {
     document.getElementById("apCat").value = d.category || "web";
     document.getElementById("apEmoji").value = d.emoji || "";
     document.getElementById("apLayout").value = d.layout || "big";
+    
+    if (document.getElementById("apClient")) document.getElementById("apClient").value = d.clientName || "";
+    if (document.getElementById("apTimeline")) document.getElementById("apTimeline").value = d.timeline || "";
+    if (document.getElementById("apTechStack")) document.getElementById("apTechStack").value = d.techStack || "";
 
-    // Show image preview if editing a project with an image
-    if (d.image) {
-      showProjectPreview(d.image);
-    } else {
-      removeProjectImage();
-    }
+    currentProjectGallery = d.gallery || (d.image ? [d.image] : []);
+    renderProjectGalleryPreview();
 
     // Switch to edit mode UI
     document.getElementById("apFormIcon").textContent = "✏️";
@@ -1056,15 +1122,44 @@ function adminCancelEditProject() {
   document.getElementById("apEmoji").value = "";
   document.getElementById("apCat").value = "web";
   document.getElementById("apLayout").value = "big";
+  
+  if (document.getElementById("apClient")) document.getElementById("apClient").value = "";
+  if (document.getElementById("apTimeline")) document.getElementById("apTimeline").value = "";
+  if (document.getElementById("apTechStack")) document.getElementById("apTechStack").value = "";
+
+  currentProjectGallery = [];
+  renderProjectGalleryPreview();
 
   // Reset to add mode UI
   document.getElementById("apFormIcon").textContent = "➕";
   document.getElementById("apFormTitle").textContent = "Add New Project";
   document.getElementById("apSubmitBtn").textContent = "Add Project →";
   document.getElementById("apCancelBtn").style.display = "none";
+}
 
-  // Clear image preview
-  if (typeof removeProjectImage === 'function') removeProjectImage();
+function renderProjectGalleryPreview() {
+  const container = document.getElementById("apGalleryPreview");
+  if (!container) return;
+  container.innerHTML = "";
+  currentProjectGallery.forEach((url, index) => {
+    const div = document.createElement("div");
+    div.style.position = "relative";
+    div.style.width = "80px";
+    div.style.height = "80px";
+    div.style.borderRadius = "8px";
+    div.style.overflow = "hidden";
+    div.style.border = "1px solid rgba(255,255,255,0.1)";
+    div.innerHTML = `
+      <img src="${escHtml(url)}" style="width:100%; height:100%; object-fit:cover;" />
+      <button type="button" style="position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.5); border:none; color:#fff; border-radius:50%; width:20px; height:20px; cursor:pointer;" onclick="removeGalleryImage(${index})">✕</button>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function removeGalleryImage(index) {
+  currentProjectGallery.splice(index, 1);
+  renderProjectGalleryPreview();
 }
 
 function renderAdminProjects() {
@@ -1232,6 +1327,14 @@ function renderAdminBookings() {
       const d = doc.data();
       const dateObj = d.createdAt ? new Date(d.createdAt.seconds * 1000) : null;
       const date = dateObj ? dateObj.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+      
+      let actionBtns = '';
+      if (!d.status || d.status === "pending") {
+        actionBtns = `<button class="btn-admin-submit btn-small" style="padding: 4px 10px; font-size: 11px; margin-right: 6px;" onclick="openAdminAccept('${doc.id}')">Accept</button>`;
+      } else if (d.status === "meeting_scheduled") {
+        actionBtns = `<button class="btn-admin-submit btn-small" style="padding: 4px 10px; font-size: 11px; margin-right: 6px; background: linear-gradient(135deg, var(--gold), #f59e0b); color: #000;" onclick="openAdminInitProject('${doc.id}')">Initialize</button>`;
+      }
+
       const item = document.createElement("div");
       item.className = "admin-item admin-booking-item";
       item.innerHTML = `
@@ -1242,15 +1345,85 @@ function renderAdminBookings() {
             <div class="admin-item-quote" style="margin-top: 8px; font-style: normal; opacity: 0.9"><strong>Description:</strong> ${escHtml(d.message || "No description provided.")}</div>
           </div>
         </div>
-        <div class="admin-booking-right">
-          <span class="admin-booking-date">${date}</span>
-          <span class="admin-booking-status status-${d.status || "pending"}">${(d.status || "pending").toUpperCase()}</span>
+        <div class="admin-booking-right" style="display: flex; align-items: center;">
+          <div style="text-align: right; margin-right: 12px; display: flex; flex-direction: column; gap: 4px;">
+            <span class="admin-booking-date" style="font-size: 11px; color: var(--text3);">${date}</span>
+            <span class="admin-booking-status status-${d.status || "pending"}" style="align-self: flex-end;">${(d.status || "pending").toUpperCase()}</span>
+          </div>
+          ${actionBtns}
           <button class="btn-admin-delete btn-small" onclick="adminDeleteBooking('${doc.id}')">✕</button>
         </div>
       `;
       list.appendChild(item);
     });
   });
+}
+
+function openAdminAccept(id) {
+  document.getElementById("acceptBookingId").value = id;
+  document.getElementById("acceptMeetLink").value = "";
+  document.getElementById("acceptMeetDate").value = "";
+  document.getElementById("adminAcceptModal").classList.add("show");
+}
+
+function closeAdminAccept() {
+  document.getElementById("adminAcceptModal").classList.remove("show");
+}
+
+function submitAdminAccept() {
+  const id = document.getElementById("acceptBookingId").value;
+  const link = document.getElementById("acceptMeetLink").value.trim();
+  const date = document.getElementById("acceptMeetDate").value.trim();
+  
+  if (!link || !date) return showToast("Please provide both link and date.", "error");
+
+  db.collection("bookings").doc(id).update({
+    status: "meeting_scheduled",
+    meetLink: link,
+    meetDate: date
+  }).then(() => {
+    closeAdminAccept();
+    showToast("Booking accepted & meeting scheduled!");
+    renderAdminBookings();
+  }).catch(err => showToast("Error: " + err.message, "error"));
+}
+
+function openAdminInitProject(id) {
+  document.getElementById("initProjectId").value = id;
+  document.getElementById("initDemoDate").value = "";
+  document.getElementById("initFinalDate").value = "";
+  document.getElementById("adminInitProjectModal").classList.add("show");
+}
+
+function closeAdminInitProject() {
+  document.getElementById("adminInitProjectModal").classList.remove("show");
+}
+
+function submitAdminInitProject() {
+  const id = document.getElementById("initProjectId").value;
+  const demoDate = document.getElementById("initDemoDate").value;
+  const finalDate = document.getElementById("initFinalDate").value;
+  
+  if (!demoDate || !finalDate) return showToast("Please provide Demo and Final dates.", "error");
+
+  const stages = [];
+  for (let i = 1; i <= 7; i++) {
+    const val = document.getElementById(`initStage${i}`).value.trim();
+    if (val) stages.push({ name: val, completed: false });
+  }
+
+  if (stages.length === 0) return showToast("Please define at least one stage.", "error");
+
+  db.collection("bookings").doc(id).update({
+    status: "in_progress",
+    demoDate: demoDate,
+    finalDate: finalDate,
+    stages: stages
+  }).then(() => {
+    closeAdminInitProject();
+    showToast("Project Initialized! It is now tracking.");
+    renderAdminBookings();
+  }).catch(err => showToast("Error: " + err.message, "error"));
 }
 
 function adminDeleteBooking(id) {
@@ -1315,12 +1488,57 @@ function loadDashboardData() {
         const date = d.createdAt ? new Date(d.createdAt.seconds * 1000).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—";
         const item = document.createElement("div");
         item.className = "dash-booking-item";
+        item.style.flexDirection = "column";
+        item.style.alignItems = "flex-start";
+        item.style.gap = "16px";
+
+        let extraContent = '';
+
+        if (d.status === "meeting_scheduled") {
+          const mDate = new Date(d.meetDate).toLocaleString();
+          extraContent = `
+            <div style="margin-top: 10px; background: rgba(34, 211, 238, 0.1); border: 1px solid rgba(34, 211, 238, 0.2); padding: 12px; border-radius: 8px; width: 100%;">
+              <div style="font-size: 13px; color: var(--accent2); margin-bottom: 4px; font-weight: 600;">Meeting Scheduled</div>
+              <div style="font-size: 12px; margin-bottom: 8px;">Date & Time: ${mDate}</div>
+              <a href="${escHtml(d.meetLink)}" target="_blank" style="display: inline-block; background: var(--accent2); color: #000; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700;">Join Meeting</a>
+            </div>
+          `;
+        } else if (d.status === "in_progress" && d.stages) {
+          let stagesHtml = '<div class="tracker-container" style="display: flex; gap: 4px; margin-top: 12px; width: 100%; overflow-x: auto; padding-bottom: 8px;">';
+          d.stages.forEach((s, idx) => {
+            const isCompleted = s.completed;
+            const bg = isCompleted ? 'var(--accent)' : 'rgba(255, 255, 255, 0.1)';
+            const color = isCompleted ? '#000' : 'var(--text2)';
+            stagesHtml += `
+              <div style="flex: 1; min-width: 80px; text-align: center;">
+                <div style="height: 4px; background: ${bg}; border-radius: 2px; margin-bottom: 6px; transition: 0.3s;"></div>
+                <div style="font-size: 10px; color: ${color}; line-height: 1.2;">${escHtml(s.name)}</div>
+              </div>
+            `;
+          });
+          stagesHtml += '</div>';
+
+          extraContent = `
+            <div style="margin-top: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); padding: 16px; border-radius: 12px; width: 100%;">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 12px;">
+                <div><span style="color: var(--text);">Demo:</span> ${escHtml(d.demoDate)}</div>
+                <div><span style="color: var(--text);">Final:</span> ${escHtml(d.finalDate)}</div>
+              </div>
+              <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--accent); letter-spacing: 0.1em;">Project Progress Tracker</div>
+              ${stagesHtml}
+            </div>
+          `;
+        }
+
         item.innerHTML = `
-          <div>
-            <div class="dash-booking-service">${escHtml(d.service)}</div>
-            <div class="dash-booking-date">${date}</div>
+          <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+            <div>
+              <div class="dash-booking-service">${escHtml(d.service)}</div>
+              <div class="dash-booking-date">${date}</div>
+            </div>
+            <span class="admin-booking-status status-${d.status || "pending"}">${(d.status || "pending").toUpperCase()}</span>
           </div>
-          <span class="admin-booking-status status-${d.status || "pending"}">${(d.status || "pending").toUpperCase()}</span>
+          ${extraContent}
         `;
         list.appendChild(item);
       });
@@ -1608,10 +1826,10 @@ function handleDeviceUpload(input) {
   document.getElementById('apUploadProgress').style.display = 'flex';
   document.getElementById('apProgressBar').style.setProperty('--progress', '0%');
 
-  // Show local preview immediately
+  // Show local preview immediately (in gallery)
   const reader = new FileReader();
   reader.onload = (e) => {
-    showProjectPreview(e.target.result);
+    // Show a temporary placeholder if wanted, but simpler to wait for upload
   };
   reader.readAsDataURL(file);
 
@@ -1619,9 +1837,10 @@ function handleDeviceUpload(input) {
   compressImage(file).then(compressedFile => {
     uploadImageToStorage(compressedFile, 'project-images', 'apProgressBar', 'apProgressText')
       .then((url) => {
-        document.getElementById('apImage').value = url;
-        showProjectPreview(url);
-        showToast('Image uploaded successfully!');
+        document.getElementById('apImage').value = ''; // clear the URL field
+        currentProjectGallery.push(url);
+        renderProjectGalleryPreview();
+        showToast('Image added to gallery!');
         setTimeout(() => {
           document.getElementById('apUploadProgress').style.display = 'none';
         }, 1500);
@@ -1681,10 +1900,12 @@ function handleTeamUpload(input) {
 
 // ── PREVIEW HELPERS ──
 function showProjectPreview(url) {
-  const preview = document.getElementById('apPreview');
-  const img = document.getElementById('apPreviewImg');
-  img.src = url;
-  preview.style.display = 'flex';
+  // Backwards compatibility used during project Edit.
+  // Instead of showing the old `apPreview` container, we just push to the gallery preview.
+  if (url && !currentProjectGallery.includes(url)) {
+    currentProjectGallery.push(url);
+    renderProjectGalleryPreview();
+  }
 }
 
 function showTeamPreview(url) {
@@ -1695,8 +1916,7 @@ function showTeamPreview(url) {
 }
 
 function removeProjectImage() {
-  document.getElementById('apPreview').style.display = 'none';
-  document.getElementById('apPreviewImg').src = '';
+  // Not used directly in the HTML anymore, but kept for legacy cleanup
   document.getElementById('apImage').value = '';
   document.getElementById('apUploadProgress').style.display = 'none';
 }
@@ -1712,18 +1932,21 @@ function removeTeamImage() {
 let previewDebounce = null;
 function previewImageUrl(url) {
   clearTimeout(previewDebounce);
-  if (!url || !url.trim()) {
-    document.getElementById('apPreview').style.display = 'none';
-    return;
-  }
+  if (!url || !url.trim()) return;
+  
   previewDebounce = setTimeout(() => {
     const img = new Image();
-    img.onload = () => showProjectPreview(url);
+    img.onload = () => {
+      currentProjectGallery.push(url);
+      renderProjectGalleryPreview();
+      document.getElementById('apImage').value = ''; // clear input after adding
+      showToast('Image URL added to gallery!');
+    };
     img.onerror = () => {
-      document.getElementById('apPreview').style.display = 'none';
+       showToast('Invalid image URL', 'error');
     };
     img.src = url;
-  }, 500);
+  }, 1000); // 1s debounce so they can finish pasting
 }
 
 let teamPreviewDebounce = null;
@@ -2021,3 +2244,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+
+// ── SERVICE DETAILS MODAL ──
+function toggleSvcDetails(btn) {
+  const card = btn.closest('.svc-card');
+  if (!card) return;
+
+  const ref = card.querySelector('.svc-ref')?.textContent || '';
+  const icon = card.querySelector('.svc-ico')?.textContent || '';
+  const title = card.querySelector('.svc-t')?.textContent || '';
+  const desc = card.querySelector('.svc-d')?.textContent || '';
+  const priceHtml = card.querySelector('.svc-price')?.innerHTML || '';
+  
+  const internalDetails = card.querySelector('.svc-details');
+  if (!internalDetails) return;
+
+  document.getElementById('svcModalRef').textContent = ref;
+  document.getElementById('svcModalIcon').textContent = icon;
+  document.getElementById('svcModalTitle').textContent = title;
+  document.getElementById('svcModalPrice').innerHTML = priceHtml;
+  document.getElementById('svcModalDesc').textContent = desc;
+
+  // We copy the HTML of the inner details section into the modal cleanly
+  document.getElementById('svcModalContent').innerHTML = internalDetails.innerHTML;
+
+  document.getElementById('svcDetailsModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSvcDetails() {
+  document.getElementById('svcDetailsModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
