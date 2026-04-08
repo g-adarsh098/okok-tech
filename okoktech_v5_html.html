@@ -42,7 +42,9 @@
   <nav>
     <div class="nav-inner">
       <a class="logo" onclick="showSection('home')" aria-label="OKOK Tech Home">
-        <span class="logo-text">OKOK<span>TECH</span></span>
+        <!-- REPLACE THE SRC BELOW WITH YOUR COMPANY LOGO PATH -->
+        <img src="Logo Design Transparent.png" alt="Company Logo" style="height: 120px; object-fit: contain;" />
+
       </a>
       <div class="nav-links">
         <a onclick="showSection('home')" class="active" id="nav-home">Home</a>
@@ -69,8 +71,10 @@
           <button class="btn-ng" onclick="handleSignOut()">Sign Out</button>
         </div>
         <!-- Theme Toggle -->
-        <button class="btn-ng" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle Theme" style="padding: 6px; display: flex; align-items: center; justify-content: center; height: 36px; width: 36px;">
-          <span class="material-symbols-outlined" id="themeIcon" style="font-size: 18px; color: var(--text);">light_mode</span>
+        <button class="btn-ng" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle Theme"
+          style="padding: 6px; display: flex; align-items: center; justify-content: center; height: 36px; width: 36px;">
+          <span class="material-symbols-outlined" id="themeIcon"
+            style="font-size: 18px; color: var(--text);">light_mode</span>
         </button>
       </div>
       <button class="hamburger" onclick="toggleMob()" id="hamburger" aria-label="Toggle menu">
@@ -113,7 +117,7 @@
         </p>
         <div class="hero-btns">
           <button class="btn-hm" onclick="showSection('products')">Book a Service</button>
-          <button class="btn-hs" onclick="showSection('projects')">View Dossier</button>
+          <button class="btn-hs" onclick="showSection('projects')">View Projects</button>
         </div>
         <div class="hero-meta">
           <div class="h-stat">
@@ -186,21 +190,21 @@
             <div class="fc-d" style="background: var(--accent)"></div>
             <div>
               <div class="fc-n">Website Dev</div>
-              <div class="fc-p">from ₹15,000</div>
+
             </div>
           </div>
           <div class="hex-fc fc-tr">
             <div class="fc-d" style="background: var(--accent2)"></div>
             <div>
               <div class="fc-n">Mobile App</div>
-              <div class="fc-p">from ₹30,000</div>
+
             </div>
           </div>
           <div class="hex-fc fc-br">
             <div class="fc-d" style="background: var(--gold)"></div>
             <div>
               <div class="fc-n">UI/UX Design</div>
-              <div class="fc-p">from ₹8,000</div>
+
             </div>
           </div>
         </div>
@@ -239,7 +243,7 @@
             <li>CMS integration (WordPress, Sanity)</li>
             <li>Performance tuned &amp; fast loading</li>
           </ul>
-          <div class="svc-price">Starting at <strong>₹15,000</strong></div>
+
           <button class="btn-svc-more" onclick="toggleSvcDetails(this)">View Details ↓</button>
           <div class="svc-details">
             <div class="svc-detail-section">
@@ -282,7 +286,6 @@
             <li>API &amp; backend integration</li>
             <li>App Store submission support</li>
           </ul>
-          <div class="svc-price">Starting at <strong>₹30,000</strong></div>
           <button class="btn-svc-more" onclick="toggleSvcDetails(this)">View Details ↓</button>
           <div class="svc-details">
             <div class="svc-detail-section">
@@ -324,7 +327,7 @@
             <li>Brand-aligned design systems</li>
             <li>Usability testing &amp; iteration</li>
           </ul>
-          <div class="svc-price">Starting at <strong>₹8,000</strong></div>
+
           <button class="btn-svc-more" onclick="toggleSvcDetails(this)">View Details ↓</button>
           <div class="svc-details">
             <div class="svc-detail-section">
@@ -367,7 +370,8 @@
         <div class="proj-controls">
           <div class="proj-search">
             <span class="proj-search-icon">🔍</span>
-            <input type="text" id="projSearchInput" placeholder="Search projects..." oninput="searchProjects(this.value)" />
+            <input type="text" id="projSearchInput" placeholder="Search projects..."
+              oninput="searchProjects(this.value)" />
           </div>
           <div class="proj-filters">
             <button class="fil on" onclick="fProj(this, 'all')">ALL_WORK</button>
@@ -532,32 +536,39 @@
                 id="apName" /></div>
             <div class="fr"><label>Description</label><textarea placeholder="Brief project description..." id="apDesc"
                 rows="3"></textarea></div>
-            <div class="fr"><label>Client Name</label><input type="text" placeholder="e.g. ShopEase India" id="apClient" /></div>
-            <div class="fr"><label>Timeline</label><input type="text" placeholder="e.g. 4 Weeks" id="apTimeline" /></div>
-            <div class="fr"><label>Tech Stack</label><input type="text" placeholder="React, Node.js, Firebase..." id="apTechStack" /></div>
+            <div class="fr"><label>Client Name</label><input type="text" placeholder="e.g. ShopEase India"
+                id="apClient" /></div>
+            <div class="fr"><label>Timeline</label><input type="text" placeholder="e.g. 4 Weeks" id="apTimeline" />
+            </div>
+            <div class="fr"><label>Tech Stack</label><input type="text" placeholder="React, Node.js, Firebase..."
+                id="apTechStack" /></div>
             <div class="fr"><label>Project Images (Gallery)</label>
               <div class="image-upload-zone" id="apUploadZone">
                 <div class="upload-preview" id="apPreview" style="display:none">
                   <img id="apPreviewImg" src="" alt="Preview" />
-                  <button type="button" class="upload-remove" onclick="removeProjectImage()" title="Remove image">✕</button>
+                  <button type="button" class="upload-remove" onclick="removeProjectImage()"
+                    title="Remove image">✕</button>
                 </div>
                 <div class="upload-droparea" id="apDropArea">
                   <div class="upload-icon">📁</div>
                   <div class="upload-text">Drag & drop an image here</div>
                   <div class="upload-subtext">or choose an option below</div>
                   <div class="upload-actions">
-                    <button type="button" class="btn-upload-device" onclick="document.getElementById('apFileInput').click()">
+                    <button type="button" class="btn-upload-device"
+                      onclick="document.getElementById('apFileInput').click()">
                       <span class="upload-btn-icon">💻</span> From Device
                     </button>
                     <button type="button" class="btn-upload-drive" onclick="openGoogleDrivePicker()">
                       <span class="upload-btn-icon">☁️</span> Google Drive
                     </button>
                   </div>
-                  <input type="file" id="apFileInput" accept="image/*" style="display:none" onchange="handleDeviceUpload(this)" />
+                  <input type="file" id="apFileInput" accept="image/*" style="display:none"
+                    onchange="handleDeviceUpload(this)" />
                 </div>
                 <div class="upload-url-row">
                   <span class="upload-or">— or paste URL —</span>
-                  <input type="text" placeholder="https://example.com/project-image.jpg" id="apImage" oninput="previewImageUrl(this.value)" />
+                  <input type="text" placeholder="https://example.com/project-image.jpg" id="apImage"
+                    oninput="previewImageUrl(this.value)" />
                 </div>
                 <div class="upload-progress" id="apUploadProgress" style="display:none">
                   <div class="upload-progress-bar" id="apProgressBar"></div>
@@ -566,7 +577,8 @@
               </div>
               <div id="apGalleryPreview" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;"></div>
             </div>
-            <div class="fr"><label>Project URL</label><input type="text" placeholder="https://example.com" id="apUrl" /></div>
+            <div class="fr"><label>Project URL</label><input type="text" placeholder="https://example.com" id="apUrl" />
+            </div>
             <div class="admin-row">
               <div class="fr" style="flex:1"><label>Category</label>
                 <select id="apCat">
@@ -675,8 +687,12 @@
               <span class="admin-card-icon">📋</span>
               <span>All Bookings</span>
             </div>
-            <a href="https://docs.google.com/spreadsheets/d/13YTIpH0g11Z250PODqAbIDBf_YkNb-IkztHCfrS076o/edit?usp=sharing" target="_blank" style="font-size: 13px; color: var(--accent); text-decoration: none;">📊 View Google Sheet</a>
-            <a onclick="syncToGoogleSheets()" style="font-size: 13px; color: var(--accent2); text-decoration: underline; margin-left: 15px; cursor: pointer;">🔄 Sync Firestore to Sheet</a>
+            <a href="https://docs.google.com/spreadsheets/d/13YTIpH0g11Z250PODqAbIDBf_YkNb-IkztHCfrS076o/edit?usp=sharing"
+              target="_blank" style="font-size: 13px; color: var(--accent); text-decoration: none;">📊 View Google
+              Sheet</a>
+            <a onclick="syncToGoogleSheets()"
+              style="font-size: 13px; color: var(--accent2); text-decoration: underline; margin-left: 15px; cursor: pointer;">🔄
+              Sync Firestore to Sheet</a>
           </div>
           <div id="adminBookingsList" class="admin-items-list">
             <div class="admin-empty">Loading bookings...</div>
@@ -689,35 +705,42 @@
         <div class="admin-section-grid">
           <div class="admin-form-card">
             <div class="admin-card-header">
-              <span class="admin-card-icon">➕</span>
-              <span>Add Team Member</span>
+              <span class="admin-card-icon" id="admTeamFormIcon">➕</span>
+              <span id="admTeamFormTitle">Add Team Member</span>
             </div>
+            <input type="hidden" id="admTeamEditId" value="" />
             <div class="fr"><label>Name</label><input type="text" placeholder="e.g. John Doe" id="admTeamName" /></div>
-            <div class="fr"><label>Role / Title</label><input type="text" placeholder="e.g. Lead Developer" id="admTeamRole" /></div>
-            <div class="fr"><label>Description</label><textarea placeholder="Brief bio..." id="admTeamDesc" rows="3"></textarea></div>
+            <div class="fr"><label>Role / Title</label><input type="text" placeholder="e.g. Lead Developer"
+                id="admTeamRole" /></div>
+            <div class="fr"><label>Description</label><textarea placeholder="Brief bio..." id="admTeamDesc"
+                rows="3"></textarea></div>
             <div class="fr"><label>Team Member Image</label>
               <div class="image-upload-zone" id="teamUploadZone">
                 <div class="upload-preview" id="teamPreview" style="display:none">
                   <img id="teamPreviewImg" src="" alt="Preview" />
-                  <button type="button" class="upload-remove" onclick="removeTeamImage()" title="Remove image">✕</button>
+                  <button type="button" class="upload-remove" onclick="removeTeamImage()"
+                    title="Remove image">✕</button>
                 </div>
                 <div class="upload-droparea" id="teamDropArea">
                   <div class="upload-icon">📁</div>
                   <div class="upload-text">Drag & drop an image</div>
                   <div class="upload-subtext">or choose an option below</div>
                   <div class="upload-actions">
-                    <button type="button" class="btn-upload-device" onclick="document.getElementById('teamFileInput').click()">
+                    <button type="button" class="btn-upload-device"
+                      onclick="document.getElementById('teamFileInput').click()">
                       <span class="upload-btn-icon">💻</span> From Device
                     </button>
                     <button type="button" class="btn-upload-drive" onclick="openGoogleDrivePicker('team')">
                       <span class="upload-btn-icon">☁️</span> Google Drive
                     </button>
                   </div>
-                  <input type="file" id="teamFileInput" accept="image/*" style="display:none" onchange="handleTeamUpload(this)" />
+                  <input type="file" id="teamFileInput" accept="image/*" style="display:none"
+                    onchange="handleTeamUpload(this)" />
                 </div>
                 <div class="upload-url-row">
                   <span class="upload-or">— or paste URL —</span>
-                  <input type="text" placeholder="https://..." id="admTeamImg" oninput="previewTeamImageUrl(this.value)" />
+                  <input type="text" placeholder="https://..." id="admTeamImg"
+                    oninput="previewTeamImageUrl(this.value)" />
                 </div>
                 <div class="upload-progress" id="teamUploadProgress" style="display:none">
                   <div class="upload-progress-bar" id="teamProgressBar"></div>
@@ -725,9 +748,16 @@
                 </div>
               </div>
             </div>
-            <div class="fr"><label>LinkedIn URL</label><input type="text" placeholder="https://linkedin.com/in/..." id="admTeamLi" /></div>
-            <div class="fr"><label>GitHub or Twitter URL</label><input type="text" placeholder="https://github.com/..." id="admTeamGh" /></div>
-            <button class="btn-admin-submit" onclick="adminAddTeamMember()">Add Member →</button>
+            <div class="fr"><label>LinkedIn URL</label><input type="text" placeholder="https://linkedin.com/in/..."
+                id="admTeamLi" /></div>
+            <div class="fr"><label>GitHub or Twitter URL</label><input type="text" placeholder="https://github.com/..."
+                id="admTeamGh" /></div>
+            <div class="admin-row" style="gap:8px">
+              <button class="btn-admin-submit" id="admTeamSubmitBtn" onclick="adminAddTeamMember()" style="flex:2">Add
+                Member →</button>
+              <button class="btn-admin-cancel" id="admTeamCancelBtn" onclick="adminCancelEditTeamMember()"
+                style="display:none;flex:1">Cancel</button>
+            </div>
           </div>
           <div class="admin-list-card">
             <div class="admin-card-header">
@@ -748,9 +778,12 @@
             <span class="admin-card-icon">🔐</span>
             <span>User Role Management</span>
           </div>
-          <p style="color: var(--text3); font-size: 13px; margin-bottom: 16px; line-height: 1.6;">Manage user roles across the platform. Toggle any user between <strong style="color: var(--accent)">Admin</strong> and <strong style="color: var(--text2)">User</strong> roles. Admins get full access to this panel.</p>
+          <p style="color: var(--text3); font-size: 13px; margin-bottom: 16px; line-height: 1.6;">Manage user roles
+            across the platform. Toggle any user between <strong style="color: var(--accent)">Admin</strong> and <strong
+              style="color: var(--text2)">User</strong> roles. Admins get full access to this panel.</p>
           <div class="user-search-row">
-            <input type="text" id="userSearchInput" placeholder="Search by name or email..." oninput="filterAdminUsers(this.value)" />
+            <input type="text" id="userSearchInput" placeholder="Search by name or email..."
+              oninput="filterAdminUsers(this.value)" />
           </div>
           <div id="adminUsersList" class="admin-items-list">
             <div class="admin-empty">Loading users...</div>
@@ -758,7 +791,7 @@
         </div>
       </div>
 
-<!-- Removed Sheets Tab -->
+      <!-- Removed Sheets Tab -->
     </div>
   </section>
 
@@ -792,7 +825,7 @@
               <div class="cico em">📧</div>
               <div>
                 <div class="cl">Email</div>
-                <div class="cv">hello@okoktech.in</div>
+                <div class="cv">okoktech.services@gmail.com</div>
               </div>
             </div>
             <hr class="asep" />
@@ -804,22 +837,26 @@
           </div>
         </div>
       </div>
-      </div>
-      
-      <!-- TEAM DIRECTORY -->
-      <div style="margin-top: 80px; margin-bottom: 40px; text-align: center;">
-        <div class="ref-tag" style="justify-content: center;">SYS_ARCHITECTS</div>
-        <h2 class="sec-title" style="font-size: 32px">The <span style="color: var(--accent2)">Minds</span> Behind OKOK</h2>
-      </div>
-      <div class="team-grid sg" id="teamGrid">
-        <div class="admin-empty" style="grid-column: 1/-1">Loading team data...</div>
-      </div>
+    </div>
+
+    <!-- TEAM DIRECTORY -->
+    <div style="margin-top: 80px; margin-bottom: 40px; text-align: center;">
+      <div class="ref-tag" style="justify-content: center;">SYS_ARCHITECTS</div>
+      <h2 class="sec-title" style="font-size: 32px">The <span style="color: var(--accent2)">Minds</span> Behind OKOK
+      </h2>
+    </div>
+    <div class="team-grid sg" id="teamGrid">
+      <div class="admin-empty" style="grid-column: 1/-1">Loading team data...</div>
+    </div>
     </div>
   </section>
 
   <footer>
     <div class="fi">
       <div>
+        <!-- REPLACE THE SRC BELOW WITH YOUR COMPANY LOGO PATH -->
+        <img src="Logo Design Transparent.png" alt="Company Logo"
+          style="height: 100px; object-fit: contain; margin-bottom: 10px;" />
         <div class="flogo">OKOK<span>TECH</span></div>
         <div class="ftag">Tactile technical excellence<br />in digital craftsmanship.</div>
       </div>
@@ -871,7 +908,8 @@
       </div>
       <div class="auth-divider"><span>or</span></div>
       <button class="btn-google" onclick="subAuthGoogle()">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" class="google-logo" />
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo"
+          class="google-logo" />
         Continue with Google
       </button>
       <p class="atp" id="aTP">Don't have an account? <a onclick="togAuth()">Sign up free</a></p>
@@ -884,9 +922,11 @@
       <div id="adminAcceptForm">
         <div class="mref">ADMIN_ACTION // ACCEPT</div>
         <div class="mtit">Schedule Meeting</div>
-        <p style="color: var(--text3); font-size: 13px; margin-bottom: 20px;">Send a meeting link to the client and move the booking to the `meeting_scheduled` stage.</p>
+        <p style="color: var(--text3); font-size: 13px; margin-bottom: 20px;">Send a meeting link to the client and move
+          the booking to the `meeting_scheduled` stage.</p>
         <input type="hidden" id="acceptBookingId" />
-        <div class="fr"><label>Google Meet / Zoom Link</label><input type="url" placeholder="https://meet.google.com/xyz-abcd-efg" id="acceptMeetLink" /></div>
+        <div class="fr"><label>Google Meet / Zoom Link</label><input type="url"
+            placeholder="https://meet.google.com/xyz-abcd-efg" id="acceptMeetLink" /></div>
         <div class="fr"><label>Meeting Date & Time</label><input type="datetime-local" id="acceptMeetDate" /></div>
         <div class="macts" style="margin-top: 24px;">
           <button class="btn-mc" onclick="closeAdminAccept()">Cancel</button>
@@ -902,13 +942,18 @@
       <div id="adminInitProjectForm">
         <div class="mref">ADMIN_ACTION // INITIALIZE</div>
         <div class="mtit">Setup 7-Stage Tracker</div>
-        <p style="color: var(--text3); font-size: 13px; margin-bottom: 20px;">Move this booking into `in_progress` and set up the Flipkart delivery-style tracking for the client's dashboard.</p>
+        <p style="color: var(--text3); font-size: 13px; margin-bottom: 20px;">Move this booking into `in_progress` and
+          set up the Flipkart delivery-style tracking for the client's dashboard.</p>
         <input type="hidden" id="initProjectId" />
-        
-        <div class="fr" style="margin-bottom: 12px;"><label>Demo Submission Date</label><input type="date" id="initDemoDate" /></div>
-        <div class="fr" style="margin-bottom: 20px;"><label>Final Submission Date</label><input type="date" id="initFinalDate" /></div>
-        
-        <label style="display: block; font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;">Define The 7 Stages</label>
+
+        <div class="fr" style="margin-bottom: 12px;"><label>Demo Submission Date</label><input type="date"
+            id="initDemoDate" /></div>
+        <div class="fr" style="margin-bottom: 20px;"><label>Final Submission Date</label><input type="date"
+            id="initFinalDate" /></div>
+
+        <label
+          style="display: block; font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;">Define
+          The 7 Stages</label>
         <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;">
           <input type="text" id="initStage1" value="Requirement Gathering" class="stage-input" />
           <input type="text" id="initStage2" value="Design & Prototyping" class="stage-input" />
@@ -933,15 +978,17 @@
       <div id="adminUpdateProgressForm">
         <div class="mref">ADMIN_ACTION // UPDATE_PROGRESS</div>
         <div class="mtit">Update Stage Progress</div>
-        <p style="color: var(--text3); font-size: 13px; margin-bottom: 20px;">Check off the completed stages. Answer any client queries below.</p>
+        <p style="color: var(--text3); font-size: 13px; margin-bottom: 20px;">Check off the completed stages. Answer any
+          client queries below.</p>
         <input type="hidden" id="updateProgressId" />
         <div id="updateProgressStages" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
           <!-- Checkboxes injected dynamically -->
         </div>
-        
+
         <div style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
           <h4 style="font-size: 14px; margin-bottom: 12px; color: var(--accent2);">Client Queries</h4>
-          <div id="adminQueriesList" style="display: flex; flex-direction: column; gap: 12px; max-height: 250px; overflow-y: auto;">
+          <div id="adminQueriesList"
+            style="display: flex; flex-direction: column; gap: 12px; max-height: 250px; overflow-y: auto;">
             <!-- Queries injected here -->
           </div>
         </div>
@@ -984,33 +1031,43 @@
     <div class="mb" style="max-width: 800px; padding: 0;">
       <div style="position: relative; width: 100%; height: 350px; background: #000;">
         <img id="dossierCover" src="" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.6;" />
-        <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 40px 30px; background: linear-gradient(to top, rgba(6,8,13,1), transparent);">
+        <div
+          style="position: absolute; bottom: 0; left: 0; right: 0; padding: 40px 30px; background: linear-gradient(to top, rgba(6,8,13,1), transparent);">
           <div class="mref" id="dossierRef">PROJECT_DEF // 000</div>
           <div class="mtit" id="dossierTitle" style="font-size: 40px; margin-bottom: 8px;">Project Title</div>
-          <div style="color: var(--accent); font-family: var(--font-m); letter-spacing: 0.1em; font-size: 13px;" id="dossierMeta">CATEGORY &bull; TIMELINE</div>
+          <div style="color: var(--accent); font-family: var(--font-m); letter-spacing: 0.1em; font-size: 13px;"
+            id="dossierMeta">CATEGORY &bull; TIMELINE</div>
         </div>
-        <button onclick="closeProjectDossier()" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; backdrop-filter: blur(4px);">✕</button>
+        <button onclick="closeProjectDossier()"
+          style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; backdrop-filter: blur(4px);">✕</button>
       </div>
       <div style="padding: 30px;">
         <p id="dossierDesc" style="color: var(--text2); font-size: 15px; line-height: 1.8; margin-bottom: 30px;"></p>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+
+        <div
+          style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
           <div>
-            <div style="font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Client</div>
+            <div
+              style="font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
+              Client</div>
             <div id="dossierClient" style="font-size: 15px; font-weight: 600;">—</div>
           </div>
           <div>
-            <div style="font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Tech Stack</div>
+            <div
+              style="font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
+              Tech Stack</div>
             <div id="dossierTech" style="font-size: 14px; color: var(--accent2);">—</div>
           </div>
         </div>
 
-        <div id="dossierGallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 30px;">
+        <div id="dossierGallery"
+          style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 30px;">
           <!-- Gallery images injected here -->
         </div>
 
         <div style="text-align: right;">
-          <a id="dossierLink" href="#" target="_blank" class="btn-np" style="text-decoration: none; display: inline-block;">Visit Live Project ↗</a>
+          <a id="dossierLink" href="#" target="_blank" class="btn-np"
+            style="text-decoration: none; display: inline-block;">Visit Live Project ↗</a>
         </div>
       </div>
     </div>
@@ -1019,14 +1076,18 @@
   <!-- Service Details Modal -->
   <div class="mo" id="svcDetailsModal">
     <div class="mb" style="max-width: 650px; padding: 0;">
-      <div style="padding: 40px 30px; background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(129, 140, 248, 0.05)); border-bottom: 1px solid rgba(255,255,255,0.05); position: relative;">
-        <button onclick="closeSvcDetails()" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; backdrop-filter: blur(4px);">✕</button>
+      <div
+        style="padding: 40px 30px; background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(129, 140, 248, 0.05)); border-bottom: 1px solid rgba(255,255,255,0.05); position: relative;">
+        <button onclick="closeSvcDetails()"
+          style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; backdrop-filter: blur(4px);">✕</button>
         <div class="mref" id="svcModalRef">SVC_DEF // 000</div>
         <div style="display: flex; align-items: center; gap: 16px; margin-top: 10px;">
-          <div id="svcModalIcon" style="font-size: 40px; background: rgba(255,255,255,0.05); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">🌐</div>
+          <div id="svcModalIcon"
+            style="font-size: 40px; background: rgba(255,255,255,0.05); width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
+            🌐</div>
           <div>
             <div class="mtit" id="svcModalTitle" style="font-size: 32px; margin-bottom: 4px;">Service Title</div>
-            <div id="svcModalPrice" style="color: var(--gold); font-size: 15px; font-weight: 600;">Starting at ₹...</div>
+
           </div>
         </div>
       </div>
