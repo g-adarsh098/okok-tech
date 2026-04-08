@@ -536,7 +536,7 @@ function subAuth() {
         // Enforce email verification for 'email/password' sign-ins
         if (!cred.user.emailVerified) {
           // Send a fresh verification email because the old one might have expired
-          cred.user.sendEmailVerification().catch(() => {});
+          cred.user.sendEmailVerification().catch(() => { });
           auth.signOut();
           showAuthError("Account not verified! A fresh verification link was just sent to your inbox.");
           btn.textContent = "Sign In";
@@ -623,14 +623,14 @@ auth.onAuthStateChanged((user) => {
     // Forcefully check if the user account is still valid/active in Firebase
     user.reload().then(() => {
       currentUser = auth.currentUser; // get latest references
-      
+
       // Prevent unverified email/password users from appearing logged in
       const isPasswordUser = currentUser.providerData && currentUser.providerData.some(p => p.providerId === 'password');
       if (isPasswordUser && !currentUser.emailVerified) {
         auth.signOut();
         return; // stop the state check entirely
       }
-      
+
       // Fetch user role from Firestore
       db.collection("users").doc(user.uid).get().then((doc) => {
         if (doc.exists) {
@@ -774,7 +774,7 @@ function loadProjects() {
       card.dataset.desc = d.description || '';
       card.style.cursor = 'pointer';
       card.onclick = () => openProjectDossier(doc.id);
-      
+
       const bgStyle = d.image
         ? `background-image: url('${d.image}'); background-size: cover; background-position: center;`
         : `background: ${gradient}`;
@@ -805,7 +805,7 @@ function openProjectDossier(id) {
   document.getElementById("dossierDesc").textContent = d.description || "";
   document.getElementById("dossierClient").textContent = d.clientName || "—";
   document.getElementById("dossierTech").textContent = d.techStack || "—";
-  
+
   if (d.image) {
     document.getElementById("dossierCover").src = d.image;
     document.getElementById("dossierCover").style.display = "block";
@@ -1028,11 +1028,11 @@ function adminSaveProject() {
   const emoji = document.getElementById("apEmoji").value.trim() || "📦";
   const layout = document.getElementById("apLayout").value;
   const url = document.getElementById("apUrl").value.trim();
-  
+
   const client = document.getElementById("apClient")?.value.trim() || "";
   const timeline = document.getElementById("apTimeline")?.value.trim() || "";
   const techStack = document.getElementById("apTechStack")?.value.trim() || "";
-  
+
   // Backwards compatibility for single image vs gallery
   let coverImage = "";
   if (currentProjectGallery.length > 0) {
@@ -1093,7 +1093,7 @@ function adminEditProject(id) {
     document.getElementById("apCat").value = d.category || "web";
     document.getElementById("apEmoji").value = d.emoji || "";
     document.getElementById("apLayout").value = d.layout || "big";
-    
+
     if (document.getElementById("apClient")) document.getElementById("apClient").value = d.clientName || "";
     if (document.getElementById("apTimeline")) document.getElementById("apTimeline").value = d.timeline || "";
     if (document.getElementById("apTechStack")) document.getElementById("apTechStack").value = d.techStack || "";
@@ -1122,7 +1122,7 @@ function adminCancelEditProject() {
   document.getElementById("apEmoji").value = "";
   document.getElementById("apCat").value = "web";
   document.getElementById("apLayout").value = "big";
-  
+
   if (document.getElementById("apClient")) document.getElementById("apClient").value = "";
   if (document.getElementById("apTimeline")) document.getElementById("apTimeline").value = "";
   if (document.getElementById("apTechStack")) document.getElementById("apTechStack").value = "";
@@ -1327,13 +1327,16 @@ function renderAdminBookings() {
       const d = doc.data();
       const dateObj = d.createdAt ? new Date(d.createdAt.seconds * 1000) : null;
       const date = dateObj ? dateObj.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
-      
+
       let actionBtns = '';
       if (!d.status || d.status === "pending") {
         actionBtns = `<button class="btn-admin-submit btn-small" style="padding: 4px 10px; font-size: 11px; margin-right: 6px;" onclick="openAdminAccept('${doc.id}')">Accept</button>`;
       } else if (d.status === "meeting_scheduled") {
         actionBtns = `<button class="btn-admin-submit btn-small" style="padding: 4px 10px; font-size: 11px; margin-right: 6px; background: linear-gradient(135deg, var(--gold), #f59e0b); color: #000;" onclick="openAdminInitProject('${doc.id}')">Initialize</button>`;
+      } else if (d.status === "in_progress") {
+        actionBtns = `<button class="btn-admin-submit btn-small" style="padding: 4px 10px; font-size: 11px; margin-right: 6px; background: linear-gradient(135deg, var(--accent), #22c55e); color: #000;" onclick="openAdminProgress('${doc.id}')">Update Progress</button>`;
       }
+
 
       const item = document.createElement("div");
       item.className = "admin-item admin-booking-item";
@@ -1374,7 +1377,7 @@ function submitAdminAccept() {
   const id = document.getElementById("acceptBookingId").value;
   const link = document.getElementById("acceptMeetLink").value.trim();
   const date = document.getElementById("acceptMeetDate").value.trim();
-  
+
   if (!link || !date) return showToast("Please provide both link and date.", "error");
 
   db.collection("bookings").doc(id).update({
@@ -1403,7 +1406,7 @@ function submitAdminInitProject() {
   const id = document.getElementById("initProjectId").value;
   const demoDate = document.getElementById("initDemoDate").value;
   const finalDate = document.getElementById("initFinalDate").value;
-  
+
   if (!demoDate || !finalDate) return showToast("Please provide Demo and Final dates.", "error");
 
   const stages = [];
@@ -1432,6 +1435,88 @@ function adminDeleteBooking(id) {
     showToast("Booking deleted.");
     renderAdminBookings();
   });
+}
+
+function openAdminProgress(id) {
+  document.getElementById("updateProgressId").value = id;
+  const stagesContainer = document.getElementById("updateProgressStages");
+  const queriesContainer = document.getElementById("adminQueriesList");
+  stagesContainer.innerHTML = '<div style="color:var(--text3); font-size:13px;">Loading stages...</div>';
+  queriesContainer.innerHTML = '';
+
+  db.collection("bookings").doc(id).get().then((doc) => {
+    if (!doc.exists) return;
+    const d = doc.data();
+
+    stagesContainer.innerHTML = '';
+    if (d.stages && d.stages.length > 0) {
+      d.stages.forEach((s, idx) => {
+        const checked = s.completed ? 'checked' : '';
+        stagesContainer.innerHTML += `
+          <label style="display:flex; align-items:center; gap:10px; font-size:14px; cursor:pointer;">
+            <input type="checkbox" id="updStage_${idx}" ${checked} style="width:16px; height:16px; accent-color:var(--accent);" />
+            <span>${escHtml(s.name)}</span>
+          </label>
+        `;
+      });
+    } else {
+      stagesContainer.innerHTML = '<div style="color:var(--text3); font-size:13px;">No stages defined.</div>';
+    }
+
+    if (d.queries && d.queries.length > 0) {
+      queriesContainer.innerHTML = '';
+      d.queries.forEach((q, idx) => {
+        const date = q.createdAt ? new Date(q.createdAt).toLocaleDateString() : '';
+        queriesContainer.innerHTML += `
+          <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:8px; font-size:13px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <strong style="color:var(--accent);">${escHtml(q.stage)}</strong>
+              <span style="color:var(--text3); font-size:11px;">${date}</span>
+            </div>
+            <div style="color:var(--text2);">${escHtml(q.text)}</div>
+          </div>
+        `;
+      });
+    } else {
+      queriesContainer.innerHTML = '<div style="color:var(--text3); font-size:13px;">No queries from the client yet.</div>';
+    }
+  });
+
+  document.getElementById("adminUpdateProgressModal").classList.add("show");
+}
+
+function closeAdminProgress() {
+  document.getElementById("adminUpdateProgressModal").classList.remove("show");
+}
+
+function submitAdminProgress() {
+  const id = document.getElementById("updateProgressId").value;
+  db.collection("bookings").doc(id).get().then((doc) => {
+    if (!doc.exists) return;
+    const d = doc.data();
+    if (!d.stages) return;
+
+    const updatedStages = d.stages.map((s, idx) => {
+      const cb = document.getElementById(`updStage_${idx}`);
+      return {
+        ...s,
+        completed: cb ? cb.checked : s.completed
+      };
+    });
+
+    const allCompleted = updatedStages.every(s => s.completed);
+    const updates = { stages: updatedStages };
+    if (allCompleted) {
+      updates.status = "completed";
+      updates.completedAt = Date.now();
+    }
+
+    db.collection("bookings").doc(id).update(updates).then(() => {
+      closeAdminProgress();
+      showToast("Progress updated!" + (allCompleted ? " Project marked as COMPLETED." : ""));
+      renderAdminBookings();
+    });
+  }).catch(err => showToast("Error: " + err.message, "error"));
 }
 
 // ══════════════════════════════════════════════════════
@@ -1503,7 +1588,7 @@ function loadDashboardData() {
               <a href="${escHtml(d.meetLink)}" target="_blank" style="display: inline-block; background: var(--accent2); color: #000; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700;">Join Meeting</a>
             </div>
           `;
-        } else if (d.status === "in_progress" && d.stages) {
+        } else if ((d.status === "in_progress" || d.status === "completed") && d.stages) {
           let stagesHtml = '<div class="tracker-container" style="display: flex; gap: 4px; margin-top: 12px; width: 100%; overflow-x: auto; padding-bottom: 8px;">';
           d.stages.forEach((s, idx) => {
             const isCompleted = s.completed;
@@ -1518,6 +1603,22 @@ function loadDashboardData() {
           });
           stagesHtml += '</div>';
 
+          let pastQueriesHtml = '';
+          if (d.queries && d.queries.length > 0) {
+            pastQueriesHtml = '<div style="margin-top: 16px; padding-top: 16px; border-top: 1px dashed rgba(255,255,255,0.1);">';
+            pastQueriesHtml += '<div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text2); letter-spacing: 0.1em; margin-bottom: 12px;">Your Past Queries</div>';
+            d.queries.forEach(q => {
+              const qDate = q.createdAt ? new Date(q.createdAt).toLocaleDateString() : '';
+              pastQueriesHtml += `
+                 <div style="margin-bottom: 8px; font-size: 12px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px;">
+                   <div style="color: var(--accent); font-weight: bold; margin-bottom: 6px;">${escHtml(q.stage)} <span style="color:var(--text3); font-weight:normal; font-size:10px; margin-left: 6px;">${qDate}</span></div>
+                   <div style="color: var(--text2); line-height: 1.4;">${escHtml(q.text)}</div>
+                 </div>
+               `;
+            });
+            pastQueriesHtml += '</div>';
+          }
+
           extraContent = `
             <div style="margin-top: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); padding: 16px; border-radius: 12px; width: 100%;">
               <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 12px;">
@@ -1526,6 +1627,12 @@ function loadDashboardData() {
               </div>
               <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--accent); letter-spacing: 0.1em;">Project Progress Tracker</div>
               ${stagesHtml}
+              ${d.status === "in_progress" ? `
+              <div style="margin-top: 16px; text-align: right;">
+                <button class="btn-np btn-small" style="font-size: 11px; padding: 6px 12px; background: rgba(34, 211, 238, 0.1); color: var(--accent2);" onclick="openUserQuery('${d.id}')">Submit Query</button>
+              </div>
+              ` : '<div style="margin-top: 16px; color: var(--accent); font-weight: bold; font-size: 13px;"> Project Completed</div>'}
+              ${pastQueriesHtml}
             </div>
           `;
         }
@@ -1545,6 +1652,55 @@ function loadDashboardData() {
     }).catch((err) => {
       console.error("Failed to load user bookings:", err);
     });
+}
+
+// ── USER DASHBOARD: QUERIES ──
+function openUserQuery(id) {
+  document.getElementById("queryBookingId").value = id;
+  const stageSelect = document.getElementById("queryStageSelect");
+  stageSelect.innerHTML = '<option>Loading...</option>';
+  document.getElementById("queryText").value = '';
+
+  db.collection("bookings").doc(id).get().then(doc => {
+    if (!doc.exists) return;
+    const d = doc.data();
+    stageSelect.innerHTML = '';
+    if (d.stages) {
+      d.stages.forEach((s) => {
+        stageSelect.innerHTML += `<option value="${escHtml(s.name)}">${escHtml(s.name)}</option>`;
+      });
+    } else {
+      stageSelect.innerHTML = '<option value="General">General</option>';
+    }
+  });
+
+  document.getElementById("userQueryModal").classList.add("show");
+}
+
+function closeUserQuery() {
+  document.getElementById("userQueryModal").classList.remove("show");
+}
+
+function submitUserQuery() {
+  const id = document.getElementById("queryBookingId").value;
+  const stage = document.getElementById("queryStageSelect").value;
+  const text = document.getElementById("queryText").value.trim();
+
+  if (!text) return showToast("Please write a query.", "error");
+
+  const queryObj = {
+    stage: stage,
+    text: text,
+    createdAt: Date.now()
+  };
+
+  db.collection("bookings").doc(id).update({
+    queries: firebase.firestore.FieldValue.arrayUnion(queryObj)
+  }).then(() => {
+    closeUserQuery();
+    showToast("Query submitted successfully!");
+    loadDashboardData();
+  }).catch(err => showToast("Error: " + err.message, "error"));
 }
 
 // ── ADMIN: TEAM ──
@@ -1933,7 +2089,7 @@ let previewDebounce = null;
 function previewImageUrl(url) {
   clearTimeout(previewDebounce);
   if (!url || !url.trim()) return;
-  
+
   previewDebounce = setTimeout(() => {
     const img = new Image();
     img.onload = () => {
@@ -1943,11 +2099,50 @@ function previewImageUrl(url) {
       showToast('Image URL added to gallery!');
     };
     img.onerror = () => {
-       showToast('Invalid image URL', 'error');
+      showToast('Invalid image URL', 'error');
     };
     img.src = url;
   }, 1000); // 1s debounce so they can finish pasting
 }
+
+// ── DEVICE UPLOAD ──
+function handleDeviceUpload(input) {
+  if (!input.files || input.files.length === 0) return;
+  const file = input.files[0];
+  
+  if (!file.type.startsWith('image/')) {
+    return showToast('Please select an image file.', 'error');
+  }
+
+  const progressWrap = document.getElementById('apUploadProgress');
+  const progressBar = document.getElementById('apProgressBar');
+  const progressText = document.getElementById('apProgressText');
+  if (progressWrap) progressWrap.style.display = 'block';
+  if (progressBar) progressBar.style.width = '50%';
+  if (progressText) progressText.textContent = 'Uploading...';
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    currentProjectGallery.push(dataUrl);
+    renderProjectGalleryPreview();
+    
+    if (progressBar) progressBar.style.width = '100%';
+    if (progressText) progressText.textContent = 'Uploaded 100%';
+    setTimeout(() => {
+      if (progressWrap) progressWrap.style.display = 'none';
+    }, 1000);
+    showToast('Image uploaded from device!');
+  };
+  reader.onerror = () => {
+    if (progressWrap) progressWrap.style.display = 'none';
+    showToast('Failed to read file.', 'error');
+  };
+  
+  reader.readAsDataURL(file);
+  input.value = ''; // reset so the same file can be uploaded again if needed
+}
+
 
 let teamPreviewDebounce = null;
 function previewTeamImageUrl(url) {
@@ -2255,7 +2450,7 @@ function toggleSvcDetails(btn) {
   const title = card.querySelector('.svc-t')?.textContent || '';
   const desc = card.querySelector('.svc-d')?.textContent || '';
   const priceHtml = card.querySelector('.svc-price')?.innerHTML || '';
-  
+
   const internalDetails = card.querySelector('.svc-details');
   if (!internalDetails) return;
 
@@ -2276,3 +2471,33 @@ function closeSvcDetails() {
   document.getElementById('svcDetailsModal').classList.remove('show');
   document.body.style.overflow = '';
 }
+
+// ── THEME TOGGLE ──
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+  updateThemeIcon();
+}
+
+function updateThemeIcon() {
+  const icon = document.getElementById('themeIcon');
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  if (icon) {
+    icon.textContent = currentTheme === 'light' ? 'dark_mode' : 'light_mode';
+  }
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  updateThemeIcon();
+}
+
+initTheme();
+

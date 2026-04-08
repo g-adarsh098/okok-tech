@@ -54,18 +54,24 @@
           style="display:none">Dashboard</a>
         <a onclick="showSection('admin')" id="nav-admin" class="nav-admin-only" style="display:none">Admin</a>
       </div>
-      <!-- Signed-out CTA -->
-      <div class="nav-cta" id="navCtaOut">
-        <button class="btn-ng" onclick="openAuth('signin')">Sign In</button>
-        <button class="btn-np" onclick="openAuth('signup')">Get Started</button>
-      </div>
-      <!-- Signed-in CTA -->
-      <div class="nav-cta" id="navCtaIn" style="display:none">
-        <div class="user-pill" id="userPill">
-          <div class="user-pill-avatar" id="userPillAvatar">U</div>
-          <span class="user-pill-name" id="userPillName">User</span>
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <!-- Signed-out CTA -->
+        <div class="nav-cta" id="navCtaOut">
+          <button class="btn-ng" onclick="openAuth('signin')">Sign In</button>
+          <button class="btn-np" onclick="openAuth('signup')">Get Started</button>
         </div>
-        <button class="btn-ng" onclick="handleSignOut()">Sign Out</button>
+        <!-- Signed-in CTA -->
+        <div class="nav-cta" id="navCtaIn" style="display:none">
+          <div class="user-pill" id="userPill">
+            <div class="user-pill-avatar" id="userPillAvatar">U</div>
+            <span class="user-pill-name" id="userPillName">User</span>
+          </div>
+          <button class="btn-ng" onclick="handleSignOut()">Sign Out</button>
+        </div>
+        <!-- Theme Toggle -->
+        <button class="btn-ng" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle Theme" style="padding: 6px; display: flex; align-items: center; justify-content: center; height: 36px; width: 36px;">
+          <span class="material-symbols-outlined" id="themeIcon" style="font-size: 18px; color: var(--text);">light_mode</span>
+        </button>
       </div>
       <button class="hamburger" onclick="toggleMob()" id="hamburger" aria-label="Toggle menu">
         <span></span><span></span><span></span>
@@ -916,6 +922,58 @@
         <div class="macts">
           <button class="btn-mc" onclick="closeAdminInitProject()">Cancel</button>
           <button class="btn-ms" onclick="submitAdminInitProject()">Initialize Project 🚀</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Update Progress Modal -->
+  <div class="mo" id="adminUpdateProgressModal">
+    <div class="mb" style="max-width: 600px;">
+      <div id="adminUpdateProgressForm">
+        <div class="mref">ADMIN_ACTION // UPDATE_PROGRESS</div>
+        <div class="mtit">Update Stage Progress</div>
+        <p style="color: var(--text3); font-size: 13px; margin-bottom: 20px;">Check off the completed stages. Answer any client queries below.</p>
+        <input type="hidden" id="updateProgressId" />
+        <div id="updateProgressStages" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+          <!-- Checkboxes injected dynamically -->
+        </div>
+        
+        <div style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+          <h4 style="font-size: 14px; margin-bottom: 12px; color: var(--accent2);">Client Queries</h4>
+          <div id="adminQueriesList" style="display: flex; flex-direction: column; gap: 12px; max-height: 250px; overflow-y: auto;">
+            <!-- Queries injected here -->
+          </div>
+        </div>
+
+        <div class="macts" style="margin-top: 24px;">
+          <button class="btn-mc" onclick="closeAdminProgress()">Cancel</button>
+          <button class="btn-ms" onclick="submitAdminProgress()">Save Progress ✓</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Query Modal -->
+  <div class="mo" id="userQueryModal">
+    <div class="mb">
+      <div id="userQueryForm">
+        <div class="mref">USER_ACTION // RAISE_QUERY</div>
+        <div class="mtit">Ask about a Stage</div>
+        <input type="hidden" id="queryBookingId" />
+        <div class="fr">
+          <label>Select Stage</label>
+          <select id="queryStageSelect">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+        <div class="fr">
+          <label>Your Doubt / Query</label>
+          <textarea id="queryText" rows="4" placeholder="What's your doubt regarding this stage?"></textarea>
+        </div>
+        <div class="macts" style="margin-top: 20px;">
+          <button class="btn-mc" onclick="closeUserQuery()">Cancel</button>
+          <button class="btn-ms" onclick="submitUserQuery()">Submit Query 🚀</button>
         </div>
       </div>
     </div>

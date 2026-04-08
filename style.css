@@ -33,7 +33,45 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --bg2: #f1f5f9;
+  --bg3: #e2e8f0;
+  --accent: #16a34a;
+  --accent-dim: rgba(22, 163, 74, 0.15);
+  --accent2: #0284c7;
+  --accent3: #4f46e5;
+  --text: #0f172a;
+  --text2: #334155;
+  --text3: #64748b;
+  --border: rgba(0, 0, 0, 0.1);
+  --card: rgba(255, 255, 255, 0.7);
+  --card-border: rgba(0, 0, 0, 0.1);
+  --gold: #ca8a04;
+  --glass: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --surf: #ffffff;
+  --surf-low: rgba(255, 255, 255, 0.85);
+  --surf-mid: rgba(248, 250, 252, 0.8);
+}
+
+[data-theme="light"] nav {
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .mob-menu {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] footer {
+  background: rgba(241, 245, 249, 0.8);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
 *,
+
 *::before,
 *::after {
   margin: 0;
