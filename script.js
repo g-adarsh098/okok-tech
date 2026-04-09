@@ -2546,3 +2546,243 @@ function toggleTheme() {
 
 initTheme();
 
+// ══════════════════════════════════════════════════════
+//  OKOKTECHIE CHATBOT WIDGET
+//  Vanilla JS port of OkokTechie React Chat component
+// ══════════════════════════════════════════════════════
+
+(function () {
+  // ── Configuration ──
+  const CHATBOT_API_URL = 'http://localhost:3001'; // Backend server URL
+  const BOT_INTRO = "Hello! I'm the OkokTechie requirements assistant. Tell me about the software or feature you'd like to build, and I'll help refine it into a clear technical brief.";
+
+  // ── State ──
+  let chatbotMessages = [{ role: 'assistant', content: BOT_INTRO }];
+  let chatbotLoading = false;
+  let chatbotSummaryText = null;
+  let chatbotIsOpen = false;
+  let chatbotIsDone = false;
+
+  // ── DOM Elements ──
+  const fab = document.getElementById('chatbotFab');
+  const panel = document.getElementById('chatbotPanel');
+  const messagesEl = document.getElementById('chatbotMessages');
+  const inputEl = document.getElementById('chatbotInput');
+  const sendBtn = document.getElementById('chatbotSendBtn');
+  const summaryEl = document.getElementById('chatbotSummary');
+  const summaryTextEl = document.getElementById('chatbotSummaryText');
+  const doneEl = document.getElementById('chatbotDone');
+  const inputArea = document.getElementById('chatbotInputArea');
+  const confirmBtn = document.getElementById('chatbotConfirmBtn');
+
+  // ── Toggle ──
+  window.toggleChatbot = function () {
+    chatbotIsOpen = !chatbotIsOpen;
+    fab.classList.toggle('active', chatbotIsOpen);
+    panel.classList.toggle('open', chatbotIsOpen);
+    if (chatbotIsOpen) {
+      renderMessages();
+      setTimeout(() => {
+        scrollToBottom();
+        inputEl.focus();
+      }, 100);
+    }
+  };
+
+  // ── Input handling ──
+  inputEl.addEventListener('input', function () {
+    sendBtn.disabled = !this.value.trim() || chatbotLoading;
+    // Auto-resize
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+  });
+
+  window.chatbotKeyDown = function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      chatbotSend();
+    }
+  };
+
+  // ── Send message ──
+  window.chatbotSend = async function () {
+    const text = inputEl.value.trim();
+    if (!text || chatbotLoading) return;
+
+    // Add user message
+    chatbotMessages.push({ role: 'user', content: text });
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    sendBtn.disabled = true;
+    chatbotLoading = true;
+
+    // Add empty assistant message (for streaming)
+    chatbotMessages.push({ role: 'assistant', content: '' });
+    renderMessages();
+    scrollToBottom();
+
+    try {
+      // Prepare API messages (filter out the intro)
+      const apiMessages = chatbotMessages
+        .filter(m => m.role !== 'assistant' || m.content !== BOT_INTRO)
+        .filter(m => m.content !== '') // Skip the empty streaming placeholder
+        .map(({ role, content }) => ({ role, content }));
+
+      const response = await fetch(CHATBOT_API_URL + '/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: apiMessages })
+      });
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullContent = '';
+
+      while (true) {
+        const { done: streamDone, value } = await reader.read();
+        if (streamDone) break;
+
+        const lines = decoder.decode(value).split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+            try {
+              const chunk = JSON.parse(line.slice(6));
+              fullContent += chunk.content;
+              // Update the last assistant message
+              chatbotMessages[chatbotMessages.length - 1].content = fullContent;
+              renderMessages();
+              scrollToBottom();
+            } catch { }
+          }
+        }
+      }
+
+      // Check if summary was generated
+      if (fullContent.includes('SUMMARY_GENERATED')) {
+        const summaryContent = fullContent.replace('SUMMARY_GENERATED', '').trim();
+        chatbotSummaryText = summaryContent;
+        chatbotMessages[chatbotMessages.length - 1].content =
+          "✅ I've gathered enough information to create your technical brief. Review the summary below and confirm to finalize.";
+        renderMessages();
+        showSummary(summaryContent);
+      }
+    } catch (err) {
+      chatbotMessages[chatbotMessages.length - 1].content = '⚠️ Something went wrong. Please try again.';
+      renderMessages();
+    }
+
+    chatbotLoading = false;
+    sendBtn.disabled = !inputEl.value.trim();
+    inputEl.focus();
+    scrollToBottom();
+  };
+
+  // ── Finalize ──
+  window.chatbotFinalize = async function () {
+    const email = document.getElementById('chatbotEmail').value.trim();
+    if (!email) {
+      showToast('Please enter your email.', 'error');
+      return;
+    }
+
+    confirmBtn.textContent = 'Saving...';
+    confirmBtn.disabled = true;
+
+    try {
+      await fetch(CHATBOT_API_URL + '/api/finalize-requirements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientId: 'client_' + Date.now(),
+          chatHistory: chatbotMessages,
+          summary: chatbotSummaryText,
+          email: email
+        })
+      });
+
+      chatbotIsDone = true;
+      messagesEl.style.display = 'none';
+      summaryEl.style.display = 'none';
+      inputArea.style.display = 'none';
+      doneEl.style.display = 'flex';
+
+    } catch {
+      showToast('Finalization failed. Please try again.', 'error');
+      confirmBtn.textContent = 'Confirm & Send';
+      confirmBtn.disabled = false;
+    }
+  };
+
+  // ── Restart ──
+  window.chatbotRestart = function () {
+    chatbotMessages = [{ role: 'assistant', content: BOT_INTRO }];
+    chatbotSummaryText = null;
+    chatbotIsDone = false;
+    chatbotLoading = false;
+
+    messagesEl.style.display = 'flex';
+    summaryEl.style.display = 'none';
+    inputArea.style.display = 'block';
+    doneEl.style.display = 'none';
+    confirmBtn.textContent = 'Confirm & Send';
+    confirmBtn.disabled = false;
+    document.getElementById('chatbotEmail').value = '';
+
+    renderMessages();
+    scrollToBottom();
+  };
+
+  // ── Render helpers ──
+  function renderMessages() {
+    messagesEl.innerHTML = '';
+    chatbotMessages.forEach((msg, i) => {
+      const row = document.createElement('div');
+      row.className = 'chatbot-msg ' + (msg.role === 'user' ? 'user' : 'bot');
+
+      if (msg.role === 'assistant') {
+        const avatar = document.createElement('div');
+        avatar.className = 'chatbot-msg-avatar';
+        avatar.innerHTML = `<img src="chatbot-icon.png" alt="Bot" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />`;
+        row.appendChild(avatar);
+      }
+
+      const bubble = document.createElement('div');
+      bubble.className = 'chatbot-msg-bubble';
+
+      if (msg.content) {
+        bubble.textContent = msg.content;
+      } else {
+        // Typing indicator
+        bubble.innerHTML = `
+          <div class="chatbot-typing">
+            <div class="chatbot-typing-dot"></div>
+            <div class="chatbot-typing-dot"></div>
+            <div class="chatbot-typing-dot"></div>
+          </div>`;
+        bubble.style.background = 'transparent';
+        bubble.style.border = 'none';
+        bubble.style.padding = '0';
+      }
+
+      row.appendChild(bubble);
+      messagesEl.appendChild(row);
+    });
+  }
+
+  function showSummary(text) {
+    summaryTextEl.textContent = text;
+    summaryEl.style.display = 'block';
+    inputArea.style.display = 'none';
+    scrollToBottom();
+  }
+
+  function scrollToBottom() {
+    requestAnimationFrame(() => {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
+  }
+
+  // ── Initial render ──
+  renderMessages();
+})();
+
