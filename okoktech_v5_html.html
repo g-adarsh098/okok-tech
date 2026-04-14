@@ -13,6 +13,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
@@ -22,6 +24,9 @@
     <div class="aurora-blob"></div>
     <div class="aurora-blob"></div>
   </div>
+
+  <!-- Rising Snow Canvas -->
+  <canvas id="snow-canvas"></canvas>
 
   <!-- Target Cursor -->
   <div class="target-cursor-wrapper" id="targetCursor">
@@ -577,8 +582,27 @@
               </div>
               <div id="apGalleryPreview" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;"></div>
             </div>
-            <div class="fr"><label>Project URL</label><input type="text" placeholder="https://example.com" id="apUrl" />
+            <div class="fr"><label>Project URL (View Work)</label><input type="text" placeholder="https://live-project-link.com" id="apUrl" />
             </div>
+            <div class="fr"><label>Detailed Case Study (Rich Description)</label>
+              <textarea placeholder="Write a detailed case study or project explanation here..." id="apDetailedDesc" rows="4"></textarea>
+            </div>
+            
+            <div class="fr">
+              <label>System Architecture (ASCII/Text Diagram)</label>
+              <textarea placeholder="┌─────┐  ┌─────┐
+│ HW  │──▶│ SW  │
+└─────┘  └─────┘" id="apArchitecture" rows="6" style="font-family: monospace;"></textarea>
+            </div>
+
+            <div class="fr">
+              <label>Project Features (Structured List)</label>
+              <div id="apFeaturesList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:10px;">
+                <!-- Feature items will be injected here -->
+              </div>
+              <button type="button" class="btn-ng" style="width:100%; border-style:dashed; color:var(--text3);" onclick="adminAddFeatureField()">+ Add Feature Card</button>
+            </div>
+
             <div class="admin-row">
               <div class="fr" style="flex:1"><label>Category</label>
                 <select id="apCat">
@@ -1026,49 +1050,83 @@
     </div>
   </div>
 
-  <!-- Public Project Dossier Modal -->
-  <div class="mo" id="projectDossierModal">
-    <div class="mb" style="max-width: 800px; padding: 0;">
-      <div style="position: relative; width: 100%; height: 350px; background: #000;">
-        <img id="dossierCover" src="" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.6;" />
-        <div
-          style="position: absolute; bottom: 0; left: 0; right: 0; padding: 40px 30px; background: linear-gradient(to top, rgba(6,8,13,1), transparent);">
-          <div class="mref" id="dossierRef">PROJECT_DEF // 000</div>
-          <div class="mtit" id="dossierTitle" style="font-size: 40px; margin-bottom: 8px;">Project Title</div>
-          <div style="color: var(--accent); font-family: var(--font-m); letter-spacing: 0.1em; font-size: 13px;"
-            id="dossierMeta">CATEGORY &bull; TIMELINE</div>
+  <!-- Public Project Dossier Modal (Mini-Page) -->
+  <div class="mo dossier-modal" id="projectDossierModal">
+    <div class="mb dossier-body" style="max-width: 1000px; padding: 0;">
+      <div class="dossier-hero">
+        <img id="dossierCover" src="" alt="Project Cover" />
+        <div class="dossier-hero-overlay">
+          <div class="dossier-header-content">
+            <div class="mref" id="dossierRef">PROJECT_DEF // 000</div>
+            <h2 class="dossier-title" id="dossierTitle">Project Title</h2>
+            <div class="dossier-badges" id="dossierMeta">
+              <!-- Meta badges injected here -->
+            </div>
+          </div>
         </div>
-        <button onclick="closeProjectDossier()"
-          style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; backdrop-filter: blur(4px);">✕</button>
+        <button class="dossier-close-btn" onclick="closeProjectDossier()" aria-label="Close">✕</button>
       </div>
-      <div style="padding: 30px;">
-        <p id="dossierDesc" style="color: var(--text2); font-size: 15px; line-height: 1.8; margin-bottom: 30px;"></p>
 
-        <div
-          style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
-          <div>
-            <div
-              style="font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
-              Client</div>
-            <div id="dossierClient" style="font-size: 15px; font-weight: 600;">—</div>
+      <div class="dossier-content">
+        <div class="dossier-main">
+          <section class="dossier-section">
+            <h3 class="dossier-sec-title">Overview</h3>
+            <p id="dossierDesc" class="dossier-overview-text"></p>
+          </section>
+
+          <section class="dossier-section" id="dossierDetailedSection" style="display:none;">
+            <h3 class="dossier-sec-title">Deep Dive</h3>
+            <div id="dossierDetailedDesc" class="dossier-detailed-text"></div>
+          </section>
+
+          <section class="dossier-section" id="dossierFeaturesSection" style="display:none;">
+            <h3 class="dossier-sec-title">Key Features</h3>
+            <div id="dossierFeaturesGrid" class="feature-grid">
+              <!-- Feature cards injected here -->
+            </div>
+          </section>
+
+          <section class="dossier-section" id="dossierArchSection" style="display:none;">
+            <h3 class="dossier-sec-title">System Architecture</h3>
+            <div id="dossierArchitecture" class="architecture-box"></div>
+          </section>
+
+          <section class="dossier-section">
+            <h3 class="dossier-sec-title">Gallery</h3>
+            <div id="dossierGallery" class="dossier-gallery-grid">
+              <!-- Gallery images injected here -->
+            </div>
+          </section>
+        </div>
+
+        <aside class="dossier-sidebar">
+          <div class="sidebar-block">
+            <div class="sb-label">Client</div>
+            <div class="sb-value" id="dossierClient">—</div>
           </div>
-          <div>
-            <div
-              style="font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
-              Tech Stack</div>
-            <div id="dossierTech" style="font-size: 14px; color: var(--accent2);">—</div>
+          <div class="sidebar-block">
+            <div class="sb-label">Tech Stack</div>
+            <div id="dossierTech" class="sb-tech-tags">
+              <!-- Tech tags injected here -->
+            </div>
           </div>
-        </div>
+          <div class="sidebar-block">
+            <div class="sb-label">Timeline</div>
+            <div class="sb-value" id="dossierTimelineVal">—</div>
+          </div>
 
-        <div id="dossierGallery"
-          style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 30px;">
-          <!-- Gallery images injected here -->
-        </div>
-
-        <div style="text-align: right;">
-          <a id="dossierLink" href="#" target="_blank" class="btn-np"
-            style="text-decoration: none; display: inline-block;">Visit Live Project ↗</a>
-        </div>
+          <div class="sidebar-action">
+            <a id="dossierLink" href="#" target="_blank" class="btn-dossier-link">
+              <span>View Project State</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </a>
+          </div>
+        </aside>
       </div>
     </div>
   </div>

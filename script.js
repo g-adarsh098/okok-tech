@@ -799,13 +799,80 @@ function openProjectDossier(id) {
   const d = window.publicProjectCache ? window.publicProjectCache[id] : null;
   if (!d) return;
 
+  // Header & Identity
   document.getElementById("dossierRef").textContent = "PROJ_DEF // " + id.slice(0, 8).toUpperCase();
   document.getElementById("dossierTitle").textContent = d.name || "Untitled";
-  document.getElementById("dossierMeta").innerHTML = `${(d.category || 'web').toUpperCase()} &bull; ${escHtml(d.timeline || 'TBD')}`;
-  document.getElementById("dossierDesc").textContent = d.description || "";
-  document.getElementById("dossierClient").textContent = d.clientName || "—";
-  document.getElementById("dossierTech").textContent = d.techStack || "—";
 
+  // Meta Badges (Category & Emoji)
+  const metaContainer = document.getElementById("dossierMeta");
+  metaContainer.innerHTML = `
+    <span class="dossier-badge">${(d.category || 'web').toUpperCase()}</span>
+    <span class="dossier-badge">${d.emoji || "📦"}</span>
+  `;
+
+  // Overview and Deep Dive
+  document.getElementById("dossierDesc").textContent = d.description || "";
+  const detailedSec = document.getElementById("dossierDetailedSection");
+  const detailedDesc = document.getElementById("dossierDetailedDesc");
+  if (d.detailedDescription) {
+    detailedSec.style.display = "block";
+    detailedDesc.innerHTML = d.detailedDescription.replace(/\n/g, '<br>');
+  } else {
+    detailedSec.style.display = "none";
+  }
+
+  // Features Section
+  const featuresSec = document.getElementById("dossierFeaturesSection");
+  const featuresGrid = document.getElementById("dossierFeaturesGrid");
+  if (d.features && d.features.length > 0) {
+    featuresSec.style.display = "block";
+    featuresGrid.innerHTML = "";
+    d.features.forEach(f => {
+      const card = document.createElement("div");
+      card.className = "feature-card";
+      // Handle FontAwesome or Emoji
+      const iconHtml = f.icon.startsWith('fa') ? `<i class="${f.icon}"></i>` : `<span style="font-size: 2rem; display:block; margin-bottom:1rem;">${f.icon}</span>`;
+      card.innerHTML = `
+        ${iconHtml}
+        <h4>${escHtml(f.title)}</h4>
+        <p>${escHtml(f.desc)}</p>
+      `;
+      featuresGrid.appendChild(card);
+    });
+  } else {
+    featuresSec.style.display = "none";
+  }
+
+  // Architecture Section
+  const archSec = document.getElementById("dossierArchSection");
+  const archBox = document.getElementById("dossierArchitecture");
+  if (d.architecture) {
+    archSec.style.display = "block";
+    archBox.textContent = d.architecture;
+  } else {
+    archSec.style.display = "none";
+  }
+
+  // Sidebar Info
+  document.getElementById("dossierClient").textContent = d.clientName || "—";
+  document.getElementById("dossierTimelineVal").textContent = d.timeline || "—";
+
+  // Tech Stack Tags
+  const techContainer = document.getElementById("dossierTech");
+  techContainer.innerHTML = "";
+  if (d.techStack) {
+    const techs = d.techStack.split(",").map(s => s.trim());
+    techs.forEach(t => {
+      const span = document.createElement("span");
+      span.className = "sb-tech-tag";
+      span.textContent = t;
+      techContainer.appendChild(span);
+    });
+  } else {
+    techContainer.innerHTML = '<span class="sb-value">—</span>';
+  }
+
+  // Cover Image
   if (d.image) {
     document.getElementById("dossierCover").src = d.image;
     document.getElementById("dossierCover").style.display = "block";
@@ -813,24 +880,24 @@ function openProjectDossier(id) {
     document.getElementById("dossierCover").style.display = "none";
   }
 
+  // Project Link
   const linkBtn = document.getElementById("dossierLink");
   if (d.url) {
     linkBtn.href = d.url;
-    linkBtn.style.display = "inline-block";
+    linkBtn.style.display = "flex";
   } else {
     linkBtn.style.display = "none";
   }
 
+  // Gallery
   const galContainer = document.getElementById("dossierGallery");
   galContainer.innerHTML = "";
   const images = d.gallery && d.gallery.length > 0 ? d.gallery : (d.image ? [d.image] : []);
   images.forEach(img => {
     const div = document.createElement("div");
-    div.style.borderRadius = "8px";
-    div.style.overflow = "hidden";
-    div.style.aspectRatio = "1";
-    div.style.border = "1px solid rgba(255,255,255,0.1)";
-    div.innerHTML = `<img src="${escHtml(img)}" style="width:100%; height:100%; object-fit:cover;" />`;
+    div.className = "dossier-gallery-item";
+    div.innerHTML = `<img src="${escHtml(img)}" loading="lazy" />`;
+    div.onclick = () => window.open(img, '_blank');
     galContainer.appendChild(div);
   });
 
@@ -1032,6 +1099,19 @@ function adminSaveProject() {
   const client = document.getElementById("apClient")?.value.trim() || "";
   const timeline = document.getElementById("apTimeline")?.value.trim() || "";
   const techStack = document.getElementById("apTechStack")?.value.trim() || "";
+  const detailedDesc = document.getElementById("apDetailedDesc")?.value.trim() || "";
+  const arch = document.getElementById("apArchitecture")?.value.trim() || "";
+
+  // Collect Features
+  const features = [];
+  document.querySelectorAll(".ap-feature-item").forEach(item => {
+    const icon = item.querySelector(".feat-icon").value.trim();
+    const title = item.querySelector(".feat-title").value.trim();
+    const desc = item.querySelector(".feat-desc").value.trim();
+    if (title || desc) {
+      features.push({ icon, title, desc });
+    }
+  });
 
   // Backwards compatibility for single image vs gallery
   let coverImage = "";
@@ -1051,6 +1131,9 @@ function adminSaveProject() {
   const projectData = {
     name, description: desc, category: cat, emoji, layout, image: coverImage, url,
     clientName: client, timeline: timeline, techStack: techStack,
+    detailedDescription: detailedDesc,
+    architecture: arch,
+    features: features,
     gallery: currentProjectGallery,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
@@ -1069,11 +1152,7 @@ function adminSaveProject() {
     // ADD new project
     projectData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
     db.collection("projects").add(projectData).then(() => {
-      showToast("Project added successfully!");
-      adminCancelEditProject();
-      renderAdminProjects();
-      loadProjects();
-    }).catch((err) => {
+  }).catch((err) => {
       showToast("Failed to add project: " + err.message, "error");
     });
   }
@@ -1097,6 +1176,7 @@ function adminEditProject(id) {
     if (document.getElementById("apClient")) document.getElementById("apClient").value = d.clientName || "";
     if (document.getElementById("apTimeline")) document.getElementById("apTimeline").value = d.timeline || "";
     if (document.getElementById("apTechStack")) document.getElementById("apTechStack").value = d.techStack || "";
+    if (document.getElementById("apDetailedDesc")) document.getElementById("apDetailedDesc").value = d.detailedDescription || "";
 
     currentProjectGallery = d.gallery || (d.image ? [d.image] : []);
     renderProjectGalleryPreview();
@@ -1113,6 +1193,27 @@ function adminEditProject(id) {
   });
 }
 
+// ── ADMIN: FEATURES DYNAMIC LIST ──
+function adminAddFeatureField(data = null) {
+  const list = document.getElementById("apFeaturesList");
+  const div = document.createElement("div");
+  div.className = "ap-feature-item";
+  div.style.background = "rgba(255,255,255,0.03)";
+  div.style.border = "1px solid rgba(255,255,255,0.08)";
+  div.style.padding = "14px";
+  div.style.borderRadius = "12px";
+  div.style.position = "relative";
+  
+  div.innerHTML = `
+    <div style="display:grid; grid-template-columns: 80px 1fr; gap:10px; margin-bottom:10px;">
+      <input type="text" class="feat-icon" placeholder="Icon (⚡ or fa-bolt)" value="${data ? data.icon : ''}" style="padding:8px; font-size:12px;" />
+      <input type="text" class="feat-title" placeholder="Feature Title" value="${data ? data.title : ''}" style="padding:8px; font-size:12px;" />
+    </div>
+    <textarea class="feat-desc" placeholder="Feature Description" rows="2" style="padding:8px; font-size:12px; height:auto;">${data ? data.desc : ''}</textarea>
+    <button type="button" onclick="this.parentElement.remove()" style="position:absolute; top:-8px; right:-8px; background:#ef4444; border:none; color:#fff; width:20px; height:20px; border-radius:50%; font-size:10px; cursor:pointer;">✕</button>
+  `;
+  list.appendChild(div);
+}
 function adminCancelEditProject() {
   document.getElementById("apEditId").value = "";
   document.getElementById("apName").value = "";
@@ -1126,6 +1227,9 @@ function adminCancelEditProject() {
   if (document.getElementById("apClient")) document.getElementById("apClient").value = "";
   if (document.getElementById("apTimeline")) document.getElementById("apTimeline").value = "";
   if (document.getElementById("apTechStack")) document.getElementById("apTechStack").value = "";
+  if (document.getElementById("apDetailedDesc")) document.getElementById("apDetailedDesc").value = "";
+  if (document.getElementById("apArchitecture")) document.getElementById("apArchitecture").value = "";
+  if (document.getElementById("apFeaturesList")) document.getElementById("apFeaturesList").innerHTML = "";
 
   currentProjectGallery = [];
   renderProjectGalleryPreview();
@@ -2053,32 +2157,38 @@ function handleDeviceUpload(input) {
   }
 
   // Show progress
-  document.getElementById('apUploadProgress').style.display = 'flex';
-  document.getElementById('apProgressBar').style.setProperty('--progress', '0%');
+  const progressWrap = document.getElementById('apUploadProgress');
+  const progressBar = document.getElementById('apProgressBar');
+  const progressText = document.getElementById('apProgressText');
 
-  // Show local preview immediately (in gallery)
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    // Show a temporary placeholder if wanted, but simpler to wait for upload
-  };
-  reader.readAsDataURL(file);
+  if (progressWrap) progressWrap.style.display = 'flex';
+  if (progressBar) progressBar.style.setProperty('--progress', '50%');
+  if (progressText) progressText.textContent = 'Processing...';
 
-  // Upload to Firebase Storage with compression
+  // Use compression and then FileReader (matching team logic)
   compressImage(file).then(compressedFile => {
-    uploadImageToStorage(compressedFile, 'project-images', 'apProgressBar', 'apProgressText')
-      .then((url) => {
-        document.getElementById('apImage').value = ''; // clear the URL field
-        currentProjectGallery.push(url);
-        renderProjectGalleryPreview();
-        showToast('Image added to gallery!');
-        setTimeout(() => {
-          document.getElementById('apUploadProgress').style.display = 'none';
-        }, 1500);
-      })
-      .catch((err) => {
-        showToast('Upload failed: ' + err.message, 'error');
-        document.getElementById('apUploadProgress').style.display = 'none';
-      });
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      
+      // Clear the URL field if any, and add to gallery
+      if (document.getElementById('apImage')) document.getElementById('apImage').value = '';
+      currentProjectGallery.push(dataUrl);
+      renderProjectGalleryPreview();
+      
+      if (progressBar) progressBar.style.setProperty('--progress', '100%');
+      if (progressText) progressText.textContent = 'Ready!';
+      showToast('Image added to gallery!');
+
+      setTimeout(() => {
+        if (progressWrap) progressWrap.style.display = 'none';
+      }, 1500);
+    };
+    reader.onerror = () => {
+      if (progressWrap) progressWrap.style.display = 'none';
+      showToast('Failed to read file.', 'error');
+    };
+    reader.readAsDataURL(compressedFile);
   });
 
   input.value = '';
@@ -2785,4 +2895,171 @@ initTheme();
   // ── Initial render ──
   renderMessages();
 })();
+
+// ── RISING SNOW ANIMATION (Integrated from snowfall.html) ──
+class RisingSnow {
+  constructor(canvasId) {
+    this.canvas = document.getElementById(canvasId);
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext('2d');
+    this.W = this.canvas.width = window.innerWidth;
+    this.H = this.canvas.height = window.innerHeight;
+    
+    this.mouseX = -1000;
+    this.mouseY = -1000;
+    this.scrollVy = 0;
+    this.lastScrollY = window.scrollY;
+    this.isPaused = false;
+    
+    this.MAX_FLAKES = 160;
+    this.SPAWN_DELAY = 28;
+    this.lastSpawn = 0;
+    this.flakes = [];
+    
+    this.init();
+  }
+  
+  init() {
+    window.addEventListener('resize', () => {
+      this.W = this.canvas.width = window.innerWidth;
+      this.H = this.canvas.height = window.innerHeight;
+    });
+    
+    window.addEventListener('mousemove', (e) => {
+      this.mouseX = e.clientX;
+      this.mouseY = e.clientY;
+    }, { passive: true });
+    
+    window.addEventListener('mouseout', () => {
+      this.mouseX = -1000;
+      this.mouseY = -1000;
+    });
+    
+    window.addEventListener('mousedown', () => this.isPaused = true);
+    window.addEventListener('mouseup', () => this.isPaused = false);
+    window.addEventListener('touchstart', () => this.isPaused = true, { passive: true });
+    window.addEventListener('touchend', () => this.isPaused = false);
+    
+    window.addEventListener('scroll', () => {
+      const currentScrollY = window.scrollY;
+      const delta = currentScrollY - this.lastScrollY;
+      this.scrollVy -= delta * 0.25;
+      this.lastScrollY = currentScrollY;
+    }, { passive: true });
+
+    // Seed initial flakes
+    for (let i = 0; i < this.MAX_FLAKES; i++) {
+      const f = this.createFlake();
+      f.y = Math.random() * this.H;
+      f.age = Math.floor(Math.random() * 500);
+      f.opacity = f.maxOp * Math.random();
+      this.flakes.push(f);
+    }
+    
+    this.loop = this.loop.bind(this);
+    requestAnimationFrame(this.loop);
+  }
+  
+  createFlake() {
+    const radius = 0.8 + Math.pow(Math.random(), 3) * 3.5;
+    return {
+      x: Math.random() * this.W,
+      y: this.H + radius + Math.random() * 40,
+      radius,
+      vy: -(0.5 + radius * 0.28 + Math.random() * 0.5),
+      vx: (Math.random() - 0.5) * 0.22,
+      wobAmp: 0.18 + Math.random() * 0.32,
+      wobFreq: 0.012 + Math.random() * 0.018,
+      wobOff: Math.random() * Math.PI * 2,
+      age: 0,
+      opacity: 0,
+      maxOp: 0.55 + Math.random() * 0.45,
+    };
+  }
+  
+  drawFlake(f, op) {
+    const r = f.radius;
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    
+    // In light mode, we use a subtle blue-grey shade. In dark mode, pure white.
+    const color = isLight ? `rgba(100, 140, 200, ${op * 0.45})` : `rgba(255, 255, 255, ${op})`;
+    
+    // Core white dot
+    this.ctx.beginPath();
+    this.ctx.arc(f.x, f.y, r, 0, Math.PI * 2);
+    this.ctx.fillStyle = color;
+    this.ctx.fill();
+    
+    if (!isLight) {
+        // Outer soft glow (only in dark mode for that premium aurora feel)
+        const glow = this.ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r * 5);
+        glow.addColorStop(0, `rgba(255,255,255,${op * 0.22})`);
+        glow.addColorStop(0.5, `rgba(210,230,255,${op * 0.07})`);
+        glow.addColorStop(1, `rgba(200,220,255,0)`);
+        this.ctx.beginPath();
+        this.ctx.arc(f.x, f.y, r * 5, 0, Math.PI * 2);
+        this.ctx.fillStyle = glow;
+        this.ctx.fill();
+    }
+  }
+  
+  loop(ts) {
+    this.ctx.clearRect(0, 0, this.W, this.H);
+    
+    if (!this.isPaused) {
+      if (this.flakes.length < this.MAX_FLAKES && ts - this.lastSpawn > this.SPAWN_DELAY) {
+        this.flakes.push(this.createFlake());
+        this.lastSpawn = ts;
+      }
+    } else {
+      this.lastSpawn = ts;
+    }
+    
+    this.scrollVy *= 0.9;
+    const live = [];
+    
+    for (const f of this.flakes) {
+      if (!this.isPaused) {
+        f.age++;
+        const dx = f.x - this.mouseX;
+        const dy = f.y - this.mouseY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const maxDist = 120;
+        
+        if (dist < maxDist) {
+          const force = (maxDist - dist) / maxDist;
+          f.x += (dx / dist) * force * 1.5;
+          f.y += (dy / dist) * force * 1.5;
+        }
+        
+        f.x += f.vx + Math.sin(f.age * f.wobFreq + f.wobOff) * f.wobAmp;
+        f.y += f.vy;
+      }
+      
+      f.y += this.scrollVy;
+      
+      if (f.x < -10) f.x = this.W + 10;
+      if (f.x > this.W + 10) f.x = -10;
+      
+      if (f.y < -f.radius * 8) continue;
+      if (f.y > this.H + f.radius * 8 + 50) f.y = -f.radius * 2;
+      
+      if (f.opacity < f.maxOp) f.opacity = Math.min(f.maxOp, f.opacity + 0.014);
+      
+      const topRatio = Math.max(0, Math.min(1, (this.H * 0.12 - (-f.y)) / (this.H * 0.12)));
+      const drawOp = f.opacity * topRatio;
+      
+      this.drawFlake(f, drawOp);
+      live.push(f);
+    }
+    
+    this.flakes = live;
+    requestAnimationFrame(this.loop);
+  }
+}
+
+// Initialize Rising Snow
+window.addEventListener('load', () => {
+    new RisingSnow('snow-canvas');
+});
 
