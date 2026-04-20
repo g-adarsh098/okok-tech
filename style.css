@@ -381,6 +381,15 @@ nav {
   cursor: none;
   text-decoration: none;
   transition: opacity 0.3s, transform 0.3s var(--spring);
+  z-index: 501; /* Ensure logo is always clickable */
+}
+
+.nav-logo-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.3s var(--spring);
+  will-change: transform;
 }
 
 .logo:hover {
@@ -586,6 +595,7 @@ section.page {
   transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
   position: relative;
   z-index: 2;
+  will-change: transform, opacity;
 }
 
 section.page.active {
@@ -612,6 +622,7 @@ section.page.visible {
 .sg.in>* {
   opacity: 1;
   transform: none;
+  will-change: transform, opacity;
 }
 
 .sg.in>*:nth-child(1) { transition-delay: 0.05s; }
@@ -4046,348 +4057,68 @@ footer {
   border-color: #e2e8f0;
 }
 
-/* ── Responsive ── */
-@media (max-width: 480px) {
-  .chatbot-fab {
-    bottom: 20px;
-    right: 20px;
-    width: 54px;
-    height: 54px;
+/* ── Responsive Mobile Optimizations ── */
+@media (max-width: 768px) {
+  nav {
+    padding: 0 1rem;
   }
 
-  .chatbot-panel {
-    bottom: 0;
-    right: 0;
-    left: 0;
-    width: 100%;
-    max-height: 85vh;
-    border-radius: 20px 20px 0 0;
-    transform-origin: bottom center;
+  .nav-inner {
+    height: 60px;
   }
 
-  .chatbot-messages {
-    max-height: calc(85vh - 200px);
+  .nav-logo-img {
+    height: 36px;
   }
-}
-/* ── PROJECT DOSSIER (MINI-PAGE) REDESIGN ── */
-.dossier-modal .mb {
-  overflow-y: auto;
-  max-height: 90vh;
-  scrollbar-width: thin;
-  scrollbar-color: var(--accent) transparent;
-}
 
-.dossier-hero {
-  position: relative;
-  width: 100%;
-  height: 400px;
-  background: #000;
-}
+  .nav-links {
+    display: none; /* Desktop links hidden on mobile */
+  }
 
-.dossier-hero img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.7;
-}
+  .nav-cta {
+    display: none; /* Hide desktop buttons on mobile */
+  }
 
-.dossier-hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, var(--bg), transparent 70%);
-  display: flex;
-  align-items: flex-end;
-  padding: 40px;
-}
+  .hamburger {
+    display: flex; /* Show hamburger on mobile */
+  }
 
-.dossier-header-content {
-  max-width: 800px;
-}
-
-.dossier-title {
-  font-family: var(--font-d);
-  font-size: 48px;
-  font-weight: 800;
-  color: #fff;
-  margin: 10px 0 15px;
-  letter-spacing: -1px;
-  line-height: 1.1;
-}
-
-.dossier-badges {
-  display: flex;
-  gap: 10px;
-}
-
-.dossier-badge {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 4px 12px;
-  border-radius: 100px;
-  font-family: var(--font-m);
-  font-size: 11px;
-  color: #fff;
-  letter-spacing: 0.1em;
-}
-
-.dossier-close-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: #fff;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  transition: all 0.3s;
-}
-
-.dossier-close-btn:hover {
-  background: var(--accent);
-  color: #000;
-  border-color: var(--accent);
-  transform: rotate(90deg);
-}
-
-.dossier-content {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 40px;
-  padding: 40px;
-}
-
-.dossier-sec-title {
-  font-family: var(--font-m);
-  font-size: 12px;
-  text-transform: uppercase;
-  color: var(--text3);
-  letter-spacing: 0.2em;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.dossier-sec-title::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: rgba(255,255,255,0.06);
-}
-
-.dossier-overview-text {
-  font-size: 16px;
-  line-height: 1.8;
-  color: var(--text2);
-  margin-bottom: 40px;
-}
-
-.dossier-detailed-text {
-  font-size: 15px;
-  line-height: 1.7;
-  color: var(--text);
-  margin-bottom: 40px;
-}
-
-.dossier-gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
-}
-
-.dossier-gallery-item {
-  aspect-ratio: 16/10;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.06);
-  cursor: pointer;
-  transition: transform 0.4s var(--spring);
-}
-
-.dossier-gallery-item:hover {
-  transform: scale(1.03);
-}
-
-.dossier-gallery-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Sidebar Styles */
-.dossier-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  position: sticky;
-  top: 0;
-}
-
-.sidebar-block {
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-.sb-label {
-  font-family: var(--font-m);
-  font-size: 11px;
-  color: var(--text3);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-}
-
-.sb-value {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.sb-tech-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.sb-tech-tag {
-  background: rgba(34, 211, 238, 0.1);
-  color: var(--accent2);
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.btn-dossier-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, var(--accent), #22c55e);
-  color: #06080d;
-  border-radius: 14px;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 800;
-  font-family: var(--font-b);
-  transition: all 0.3s var(--spring);
-  box-shadow: 0 10px 30px rgba(74, 222, 128, 0.2);
-}
-
-.btn-dossier-link:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 15px 40px rgba(74, 222, 128, 0.4);
-}
-
-/* Scrollbar for modal */
-.dossier-modal .mb::-webkit-scrollbar {
-  width: 6px;
-}
-.dossier-modal .mb::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
-}
-.dossier-modal .mb::-webkit-scrollbar-thumb {
-  background: var(--accent);
-  border-radius: 10px;
-}
-
-@media (max-width: 900px) {
-  .dossier-content {
+  .hero-wrap {
     grid-template-columns: 1fr;
-    gap: 30px;
+    text-align: center;
+    padding-top: 40px;
+    gap: 2rem;
   }
-  .dossier-sidebar {
-    position: static;
-    order: -1;
+
+  .hero-p {
+    margin-left: auto;
+    margin-right: auto;
   }
-  .dossier-title {
-    font-size: 36px;
+
+  .hero-btns {
+    justify-content: center;
   }
-  .dossier-hero {
-    height: 300px;
+
+  .hero-meta {
+    justify-content: center;
   }
-}
 
-/* -- INSPIRED BY IV DRIPS MONITOR -- */
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
+  .hero-right {
+    order: -1; /* Show graphic first on mobile */
+    max-width: 320px;
+    margin: 0 auto;
+  }
 
-.feature-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 1.5rem;
-  border-radius: 12px;
-  transition: all 0.3s var(--ease);
-}
+  .hex-scene {
+    transform: scale(0.85);
+  }
 
-.feature-card:hover {
-  border-color: var(--accent2);
-  transform: translateY(-5px);
-  background: rgba(34, 211, 238, 0.05);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
+  .sec-title {
+    font-size: 32px;
+  }
 
-.feature-card i {
-  font-size: 2rem;
-  color: var(--accent2);
-  margin-bottom: 1rem;
-}
-
-.feature-card h4 {
-  font-family: var(--font-d);
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-  color: #fff;
-}
-
-.feature-card p {
-  font-size: 0.95rem;
-  color: var(--text2);
-  line-height: 1.6;
-}
-
-.architecture-box {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 1.5rem;
-  border-radius: 12px;
-  font-family: var(--font-m);
-  color: var(--accent);
-  white-space: pre;
-  overflow-x: auto;
-  margin-bottom: 2rem;
-  line-height: 1.4;
-}
-
-/* Enhanced tech tags */
-.sb-tech-tag {
-  background: rgba(129, 140, 248, 0.1);
-  border: 1px solid rgba(129, 140, 248, 0.2);
-  color: #fff;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  transition: all 0.3s;
-}
-
-.sb-tech-tag:hover {
-  background: rgba(129, 140, 248, 0.2);
-  border-color: var(--accent3);
-  transform: scale(1.05);
+  section.page {
+    padding: 80px 1rem 40px;
+  }
 }
 
