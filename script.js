@@ -773,7 +773,7 @@ function loadProjects() {
       card.dataset.name = d.name || '';
       card.dataset.desc = d.description || '';
       card.style.cursor = 'pointer';
-      card.onclick = () => openProjectDossier(doc.id);
+      card.onclick = (e) => openProjectDossier(doc.id, card);
 
       const bgStyle = d.image
         ? `background-image: url('${d.image}'); background-size: cover; background-position: center;`
@@ -795,22 +795,20 @@ function loadProjects() {
   });
 }
 
-function openProjectDossier(id) {
+function openProjectDossier(id, cardEl = null) {
   const d = window.publicProjectCache ? window.publicProjectCache[id] : null;
   if (!d) return;
 
-  // Header & Identity
+  // Populate Modal Data
   document.getElementById("dossierRef").textContent = "PROJ_DEF // " + id.slice(0, 8).toUpperCase();
   document.getElementById("dossierTitle").textContent = d.name || "Untitled";
 
-  // Meta Badges (Category & Emoji)
   const metaContainer = document.getElementById("dossierMeta");
   metaContainer.innerHTML = `
     <span class="dossier-badge">${(d.category || 'web').toUpperCase()}</span>
     <span class="dossier-badge">${d.emoji || "📦"}</span>
   `;
 
-  // Overview and Deep Dive
   document.getElementById("dossierDesc").textContent = d.description || "";
   const detailedSec = document.getElementById("dossierDetailedSection");
   const detailedDesc = document.getElementById("dossierDetailedDesc");
@@ -821,7 +819,6 @@ function openProjectDossier(id) {
     detailedSec.style.display = "none";
   }
 
-  // Features Section
   const featuresSec = document.getElementById("dossierFeaturesSection");
   const featuresGrid = document.getElementById("dossierFeaturesGrid");
   if (d.features && d.features.length > 0) {
@@ -830,20 +827,14 @@ function openProjectDossier(id) {
     d.features.forEach(f => {
       const card = document.createElement("div");
       card.className = "feature-card";
-      // Handle FontAwesome or Emoji
       const iconHtml = f.icon.startsWith('fa') ? `<i class="${f.icon}"></i>` : `<span style="font-size: 2rem; display:block; margin-bottom:1rem;">${f.icon}</span>`;
-      card.innerHTML = `
-        ${iconHtml}
-        <h4>${escHtml(f.title)}</h4>
-        <p>${escHtml(f.desc)}</p>
-      `;
+      card.innerHTML = `${iconHtml}<h4>${escHtml(f.title)}</h4><p>${escHtml(f.desc)}</p>`;
       featuresGrid.appendChild(card);
     });
   } else {
     featuresSec.style.display = "none";
   }
 
-  // Architecture Section
   const archSec = document.getElementById("dossierArchSection");
   const archBox = document.getElementById("dossierArchitecture");
   if (d.architecture) {
@@ -853,11 +844,9 @@ function openProjectDossier(id) {
     archSec.style.display = "none";
   }
 
-  // Sidebar Info
   document.getElementById("dossierClient").textContent = d.clientName || "—";
   document.getElementById("dossierTimelineVal").textContent = d.timeline || "—";
 
-  // Tech Stack Tags
   const techContainer = document.getElementById("dossierTech");
   techContainer.innerHTML = "";
   if (d.techStack) {
@@ -872,7 +861,6 @@ function openProjectDossier(id) {
     techContainer.innerHTML = '<span class="sb-value">—</span>';
   }
 
-  // Cover Image
   if (d.image) {
     document.getElementById("dossierCover").src = d.image;
     document.getElementById("dossierCover").style.display = "block";
@@ -880,7 +868,6 @@ function openProjectDossier(id) {
     document.getElementById("dossierCover").style.display = "none";
   }
 
-  // Project Link
   const linkBtn = document.getElementById("dossierLink");
   if (d.url) {
     linkBtn.href = d.url;
@@ -889,7 +876,6 @@ function openProjectDossier(id) {
     linkBtn.style.display = "none";
   }
 
-  // Gallery
   const galContainer = document.getElementById("dossierGallery");
   galContainer.innerHTML = "";
   const images = d.gallery && d.gallery.length > 0 ? d.gallery : (d.image ? [d.image] : []);
@@ -901,8 +887,55 @@ function openProjectDossier(id) {
     galContainer.appendChild(div);
   });
 
-  document.getElementById("projectDossierModal").classList.add("show");
-  document.body.style.overflow = "hidden";
+  // ANIMATION: ZOOM IN TRANSITION
+  if (cardEl && typeof gsap !== 'undefined') {
+    const rect = cardEl.getBoundingClientRect();
+    const clone = cardEl.cloneNode(true);
+    
+    // Setup clone for transition
+    clone.classList.add('pc-transition-clone');
+    clone.style.position = 'fixed';
+    clone.style.top = rect.top + 'px';
+    clone.style.left = rect.left + 'px';
+    clone.style.width = rect.width + 'px';
+    clone.style.height = rect.height + 'px';
+    clone.style.margin = '0';
+    clone.style.zIndex = '10001';
+    document.body.appendChild(clone);
+
+    // Fade out original temporarily
+    cardEl.style.opacity = '0';
+
+    // Transition Timeline
+    const tl = gsap.timeline({
+      onComplete: () => {
+        document.getElementById("projectDossierModal").classList.add("show");
+        document.body.style.overflow = "hidden";
+        gsap.to(clone, { opacity: 0, duration: 0.3, onComplete: () => {
+          clone.remove();
+          cardEl.style.opacity = '1';
+        }});
+      }
+    });
+
+    tl.to(clone, {
+      top: '5vh',
+      left: '2.5%',
+      width: '95%',
+      height: '90vh',
+      borderRadius: '28px',
+      duration: 0.6,
+      ease: "expo.out"
+    });
+    
+    // Also animate clone content out
+    tl.to(clone.querySelectorAll('.pcon, .p-emoji'), { opacity: 0, duration: 0.3 }, 0);
+
+  } else {
+    // Fallback if no card or GSAP
+    document.getElementById("projectDossierModal").classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
 }
 
 function closeProjectDossier() {
@@ -1141,7 +1174,7 @@ function adminSaveProject() {
   if (editId) {
     // UPDATE existing project
     db.collection("projects").doc(editId).update(projectData).then(() => {
-      showToast("Project updated successfully!");
+      showToast("Project updated successfully!", "success");
       adminCancelEditProject();
       renderAdminProjects();
       loadProjects();
@@ -1152,7 +1185,11 @@ function adminSaveProject() {
     // ADD new project
     projectData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
     db.collection("projects").add(projectData).then(() => {
-  }).catch((err) => {
+      showToast("Project added successfully!", "success");
+      adminCancelEditProject();
+      renderAdminProjects();
+      loadProjects();
+    }).catch((err) => {
       showToast("Failed to add project: " + err.message, "error");
     });
   }
