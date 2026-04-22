@@ -870,7 +870,7 @@ function openProjectDossier(id, cardEl = null) {
 
   const linkBtn = document.getElementById("dossierLink");
   if (d.url) {
-    linkBtn.href = d.url;
+    linkBtn.href = ensureAbsoluteUrl(d.url);
     linkBtn.style.display = "flex";
   } else {
     linkBtn.style.display = "none";
@@ -1098,6 +1098,15 @@ function escHtml(str) {
   return div.innerHTML;
 }
 
+function ensureAbsoluteUrl(url) {
+  if (!url) return '';
+  const trimmed = url.trim();
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+    return 'https://' + trimmed;
+  }
+  return trimmed;
+}
+
 // ══════════════════════════════════════════════════════
 //  ADMIN PANEL — TABS & CRUD
 // ══════════════════════════════════════════════════════
@@ -1316,7 +1325,7 @@ function renderAdminProjects() {
     snap.forEach((doc) => {
       const d = doc.data();
       const hasImage = d.image ? `<div class="admin-item-thumb" style="background-image: url('${d.image}')"></div>` : "";
-      const hasUrl = d.url ? ` · <a href="${d.url}" target="_blank" style="color:var(--accent2);text-decoration:none">🔗 URL</a>` : '';
+      const hasUrl = d.url ? ` · <a href="${escHtml(ensureAbsoluteUrl(d.url))}" target="_blank" style="color:var(--accent2);text-decoration:none">🔗 URL</a>` : '';
       const item = document.createElement("div");
       item.className = "admin-item";
       item.innerHTML = `
@@ -1726,7 +1735,7 @@ function loadDashboardData() {
             <div style="margin-top: 10px; background: rgba(34, 211, 238, 0.1); border: 1px solid rgba(34, 211, 238, 0.2); padding: 12px; border-radius: 8px; width: 100%;">
               <div style="font-size: 13px; color: var(--accent2); margin-bottom: 4px; font-weight: 600;">Meeting Scheduled</div>
               <div style="font-size: 12px; margin-bottom: 8px;">Date & Time: ${mDate}</div>
-              <a href="${escHtml(d.meetLink)}" target="_blank" style="display: inline-block; background: var(--accent2); color: #000; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700;">Join Meeting</a>
+              <a href="${escHtml(ensureAbsoluteUrl(d.meetLink))}" target="_blank" style="display: inline-block; background: var(--accent2); color: #000; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700;">Join Meeting</a>
             </div>
           `;
         } else if ((d.status === "in_progress" || d.status === "completed") && d.stages) {
