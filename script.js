@@ -2703,6 +2703,27 @@ function toggleTheme() {
 initTheme();
 
 // ══════════════════════════════════════════════════════
+//  FAQ ACCORDION (AEO Section)
+// ══════════════════════════════════════════════════════
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isActive = item.classList.contains('active');
+  const expanded = btn.getAttribute('aria-expanded') === 'true';
+
+  // Close all other items
+  document.querySelectorAll('.faq-item.active').forEach(el => {
+    el.classList.remove('active');
+    el.querySelector('.faq-question')?.setAttribute('aria-expanded', 'false');
+  });
+
+  // Toggle current
+  if (!isActive) {
+    item.classList.add('active');
+    btn.setAttribute('aria-expanded', 'true');
+  }
+}
+
+// ══════════════════════════════════════════════════════
 //  OKOKTECHIE CHATBOT WIDGET
 //  Vanilla JS port of OkokTechie React Chat component
 // ══════════════════════════════════════════════════════
